@@ -1,33 +1,35 @@
+import logging
 import os
 
+from google_drive_downloader import GoogleDriveDownloader as gdd
+
 import configurations
-from clint.textui import progress
-import requests
+import logHandler
 
 
 class DataLoader(object):
 
-    def __init__(self, root_path, logger) -> None:
-        super().__init__()
-        self._root_path = root_path
-        self._logger = logger
+    def __init__(self, root_path) -> None:
+        self._images_path = os.path.join(root_path, 'images')
+        if not os.path.exists(self._images_path):
+            os.makedirs(self._images_path)
 
-    def download_images(self):
+        self._logger = logging.getLogger(logHandler.general_logger)
+
+    def download_images(self, force_download=False):
         for file_name in configurations.images_download_urls:
-            r = requests.get(configurations.images_download_urls[file_name], stream=True)
-            path = os.path.join(self._root_path, file_name)
-            self._logger.info("Starting download '{}' to '{}'"
-                              .format(configurations.images_download_urls[file_name], path))
-            with open(path, 'wb') as f:
-                total_length = int(r.headers.get("content-length"))
-                for chunk in progress.bar(r.iter_content(chunk_size=1024), expected_size=(total_length / 1024) + 1):
-                    if chunk:
-                        f.write(chunk)
-                        f.flush()
+            path = os.path.join(self._images_path, file_name)
 
-            self._logger.info("Done downloading '{}' to '{}'"
-                              .format(configurations.images_download_urls[file_name], path))
+            if os.path.exists(path) and not force_download:
+                continue
+
+            self._download_from_drive(configurations.images_download_urls[file_name], path)
 
     def download_descriptors(self):
         pass
+
+    def _download_from_drive(self, file_id, dest_path):
+        self._logger.info("Starting download file_id={} to dest_path={}".format(file_id, dest_path))
+        gdd.download_file_from_google_drive(file_id=file_id, dest_path=dest_path, unzip=True, showsize=True)
+        self._logger.info("Finished download file_id={} to dest_path={}".format(file_id, dest_path))
 

@@ -1,10 +1,11 @@
-import logging
-
-from logHandler import LogHandler
+import logHandler
+from dataLoader import DataLoader
 
 
 def main():
-    log_handler = LogHandler()
+    logHandler.initialize()
+    data_loader = DataLoader(root_path='./data')
+    data_loader.download_images()
 
 
 if __name__ == '__main__':
