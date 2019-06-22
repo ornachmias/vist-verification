@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS Images (
-    Id VARCHAR(50),
-    Title VARCHAR(200),
-    Text VARCHAR(2000),
+    Id VARCHAR(50) PRIMARY KEY,
+    Title TEXT,
+    Text TEXT,
     AlbumId VARCHAR(50),
-    Tags VARCHAR(200))
+    Tags TEXT)

@@ -33,6 +33,14 @@ class DatabaseAccess(object):
                             + vist_dataset.data["val"]["albums"]
                             + vist_dataset.data["test"]["albums"])
 
+            self.add_annotations(vist_dataset.data["train"]["annotations"]
+                                 + vist_dataset.data["val"]["annotations"]
+                                 + vist_dataset.data["test"]["annotations"])
+
+            self.add_images(vist_dataset.data["train"]["images"]
+                            + vist_dataset.data["val"]["images"]
+                            + vist_dataset.data["test"]["images"])
+
             return True
         except Error as e:
             self._logger.error("Failed to initialize database.")
@@ -43,29 +51,59 @@ class DatabaseAccess(object):
         if self._validate_content("Albums", albums):
             return
 
+        cursor = self._mysql.cursor()
         try:
             self._logger.info("Starting to insert {} albums to database.".format(len(albums)))
             insert_albums_query = """ INSERT INTO Albums (Id, Description, Title, Photos, VistLabel) 
                            VALUES (%s,%s,%s,%s,%s) """
             albums_to_insert = [(x["id"], x["description"], x["title"], x["photos"], x["vist_label"]) for x in albums]
-            cursor = self._mysql.cursor()
             cursor.executemany(insert_albums_query, albums_to_insert)
             self._mysql.commit()
             self._logger.info("{} Albums inserted successfully.".format(cursor.rowcount))
         except mysql.connector.Error as error:
-            self._logger.debug("Failed inserting albums. {}".format(error), error)
+            self._logger.error("Failed inserting albums. {}".format(error), error)
         finally:
             if self._mysql.is_connected():
                 cursor.close()
 
-    def add_annotations(self, albums):
-        pass
+    def add_annotations(self, annotations):
+        if self._validate_content("Annotations", annotations):
+            return
 
-    def add_images(self, albums):
-        pass
+        cursor = self._mysql.cursor()
+        try:
+            self._logger.info("Starting to insert {} annotations to database.".format(len(annotations)))
+            insert_annotations_query = """ INSERT INTO Annotations (StoryletId, PhotoOrder, 
+                            PhotoFlickrId, AlbumId, StoryId, OriginalText, Text) 
+                           VALUES (%s,%s,%s,%s,%s,%s,%s) """
+            annotations_to_insert = [(x[0]["storylet_id"], x[0]["worker_arranged_photo_order"], x[0]["photo_flickr_id"], x[0]["album_id"], x[0]["story_id"], x[0]["original_text"], x[0]["text"]) for x in annotations]
+            cursor.executemany(insert_annotations_query, annotations_to_insert)
+            self._mysql.commit()
+            self._logger.info("{} Annotations inserted successfully.".format(cursor.rowcount))
+        except mysql.connector.Error as error:
+            self._logger.error("Failed inserting annotations. {}".format(error), error)
+        finally:
+            if self._mysql.is_connected():
+                cursor.close()
 
-    def add_stories(self, albums):
-        pass
+    def add_images(self, images):
+        if self._validate_content("Images", images):
+            return
+
+        cursor = self._mysql.cursor()
+        try:
+            self._logger.info("Starting to insert {} images to database.".format(len(images)))
+            insert_images_query = """ INSERT INTO Images (Id, Title, Text, AlbumId, Tags) 
+                           VALUES (%s,%s,%s,%s,%s) """
+            images_to_insert = [(x["id"], x["title"], x["text"], x["album_id"], x["tags"]) for x in images]
+            cursor.executemany(insert_images_query, images_to_insert)
+            self._mysql.commit()
+            self._logger.info("{} Images inserted successfully.".format(cursor.rowcount))
+        except mysql.connector.Error as error:
+            self._logger.error("Failed inserting images. {}".format(error), error)
+        finally:
+            if self._mysql.is_connected():
+                cursor.close()
 
     def _create_database(self):
         cursor = self._mysql.cursor()
@@ -99,15 +137,16 @@ class DatabaseAccess(object):
         return True
 
     def _count_rows(self, table_name):
-        count_query = "SELECT * FROM {}".format(table_name)
+        count_query = "SELECT COUNT(*) FROM {}".format(table_name)
         cursor = self._mysql.cursor(buffered=True)
-        number_of_rows = cursor.execute(count_query)
+        cursor.execute(count_query)
+        number_of_rows = cursor.fetchone()
 
         if number_of_rows is None:
             number_of_rows = 0
 
         cursor.close()
-        return number_of_rows
+        return number_of_rows[0]
 
     def _delete_table_content(self, table_name):
         count_query = "DELETE FROM {}".format(table_name)
