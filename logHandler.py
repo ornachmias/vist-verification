@@ -5,7 +5,7 @@ general_logger = 'vist-verification'
 def initialize():
     logger = logging.getLogger(general_logger)
     logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler('vist-verification.log')
+    fh = logging.FileHandler('../vist-verification.log')
     fh.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)

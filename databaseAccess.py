@@ -10,7 +10,8 @@ from vistDataset import VistDataset
 
 
 class DatabaseAccess(object):
-    def __init__(self) -> None:
+    def __init__(self, scripts_root) -> None:
+        self._scripts_root = scripts_root
         self._logger = logging.getLogger(logHandler.general_logger)
         self._db_name = "VIST_Validation"
         self._mysql = None
@@ -112,11 +113,10 @@ class DatabaseAccess(object):
 
     def _create_tables(self):
         cursor = self._mysql.cursor()
-        base_path = "./mysql"
-        for file in os.listdir("./mysql"):
+        for file in os.listdir(self._scripts_root):
             if file.startswith("table."):
                 self._logger.info("Running {}".format(file))
-                cursor.execute(self._read_file(os.path.join(base_path, file)))
+                cursor.execute(self._read_file(os.path.join(self._scripts_root, file)))
         cursor.close()
 
     def _read_file(self, path):

@@ -33,6 +33,20 @@ class DataLoader(object):
         for path in paths:
             self._extract_file(path)
 
+    def load_image(self, image_id):
+        image_path = self._find_file(image_id)
+        self._logger.info("image_id={}, found path={}".format(image_id, image_path))
+        in_file = open(image_path, "rb")
+        data = in_file.read()
+        in_file.close()
+        return data
+
+    def _find_file(self, image_id):
+        for dirpath, dirnames, filenames in os.walk(self._images_path):
+            for filename in filenames:
+                if os.path.splitext(filename)[0] == image_id:
+                    return os.path.join(dirpath, filename)
+
     def _download_images(self, file_name, force_download=False):
         path = os.path.join(self._images_path, file_name)
 

@@ -28,11 +28,14 @@ ns.model = (function() {
             let ajax_options = {
                 type: 'GET',
                 url: 'api/images/' + image_id,
-                dataType: 'binary'
+                dataType: 'text',
+                accepts: 'text/plain',
+                contentType: 'text/plain',
+                image_id: image_id
             };
             $.ajax(ajax_options)
             .done(function(data) {
-                $event_pump.trigger('model_read_success', [data]);
+                $event_pump.trigger('model_get_image_success', [image_id, data]);
             })
             .fail(function(xhr, textStatus, errorThrown) {
                 $event_pump.trigger('model_error', [xhr, textStatus, errorThrown]);
@@ -94,17 +97,9 @@ ns.view = (function() {
             }
             return [$question_id, result];
         },
-        build_sequence: function(images_ids) {
-            let sequence = ''
-
-            // did we get a people array?
-            if (images_ids) {
-                for (let i=0, l=images_ids.length; i < l; i++) {
-                    sequence += `<li id=${images_ids[i]} class="ui-state-default">${images_ids[i]}</li>`;
-                    $image_order[images_ids[i]] = i;
-                }
-                $('.single-question > .images > .image-sequence').append(sequence);
-            }
+        build_sequence: function(image_id, content) {
+            let sequence = '<li id="' + image_id + '" class="ui-state-default"><img src="data:image/jpg;base64, ' + content + '"/></li>';
+            $('.single-question > .images > .image-sequence').append(sequence);
         },
         error: function(error_msg) {
             $('.error')
@@ -151,7 +146,16 @@ ns.controller = (function(m, v) {
     // Handle the model events
     $event_pump.on('model_get_images_ids_success', function(e, data) {
         console.log(data);
-        view.build_sequence(data);
+        let images = {};
+
+        for (var i = 0; i < data.length; i++) {
+            images[data[i]] = model.get_image(data[i]);
+        }
+
+    });
+
+    $event_pump.on('model_get_image_success', function(e, image_id, data) {
+        view.build_sequence(image_id, data);
     });
 
     $event_pump.on('model_create_new_question_success', function(e, data) {
