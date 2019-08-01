@@ -30,8 +30,8 @@ class DataLoader(object):
 
         paths.append(self._download_descriptors())
 
-        for path in paths:
-            self._extract_file(path)
+        # for path in paths:
+        #     self._extract_file(path)
 
     def load_image(self, image_id):
         image_path = self._find_file(image_id)

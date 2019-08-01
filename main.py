@@ -1,16 +1,36 @@
-from flask import render_template, make_response, jsonify, request
-import connexion
+import json
+import logging
+
+from flask import Flask, render_template, make_response, jsonify, request
 import logHandler
 from dataLoader import DataLoader
 from databaseAccess import DatabaseAccess
 from vistDataset import VistDataset
 import base64
 
-app = connexion.App(__name__, specification_dir="./")
+app = Flask(__name__)
+data_loader = DataLoader(root_path="./data")
+vist_dataset = VistDataset(root_path="./data")
+database_access = DatabaseAccess(scripts_root="./mysql")
 
-@app.route("/")
+
+
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template("single-question.html")
+    render_data = {
+        "worker_id": request.args.get("workerId"),
+        "assignment_id": request.args.get("assignmentId"),
+        "amazon_host": "https://workersandbox.mturk.com/mturk/externalSubmit",
+        "hit_id": request.args.get("hitId"),
+        "some_info_to_pass": request.args.get("someInfoToPass")
+    }
+
+    print("Request parameters: {}".format(json.dumps(render_data)))
+
+    resp = make_response(render_template("single-question.html"))
+    resp.headers['x-frame-options'] = 'dummy'
+    resp.headers['ContentType'] = "text/html"
+    return resp
 
 
 @app.route('/api/questions/<string:question_id>', methods=['GET'])
@@ -36,11 +56,8 @@ def get_image(image_id):
 
 if __name__ == "__main__":
     logHandler.initialize()
-    data_loader = DataLoader(root_path="../data")
-    vist_dataset = VistDataset(root_path="../data")
-    database_access = DatabaseAccess(scripts_root="../mysql")
-
     data_loader.initialize()
     vist_dataset.initialize()
     database_access.initialize(vist_dataset)
-    app.run(debug=True)
+
+    app.run(host='127.0.0.1', port=8080, debug=True)

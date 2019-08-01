@@ -22,3 +22,8 @@ descriptors_file = 'SIS-with-labels.tar.gz'
 mysql_host = 'localhost'
 mysql_user = 'root'
 mysql_password = 'Aa123456'
+
+aws_access_key_id = "XXX"
+aws_secret_access_key = "XXX"
+
+api_url = "https://vist-verification-gcloud.appspot.com/"
