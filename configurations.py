@@ -27,3 +27,5 @@ aws_access_key_id = "XXX"
 aws_secret_access_key = "XXX"
 
 api_url = "https://vist-verification-gcloud.appspot.com/"
+
+samples = 100

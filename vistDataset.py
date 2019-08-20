@@ -1,38 +1,34 @@
 import os
 import json
 import logging
+import random
+
+from storyInSequence import StoryInSequence
 
 import logHandler
 
 
 class VistDataset(object):
-    def __init__(self, root_path) -> None:
+    def __init__(self, root_path, samples_num=None) -> None:
+        self._samples_num = samples_num
+        self._root_path = root_path
+        self._story_in_sequence = None
         self._logger = logging.getLogger(logHandler.general_logger)
-        self._descriptor_paths = os.path.join(root_path, "descriptor", "sis")
         self._is_loaded = False
-        self.data = {"train": [], "val": [], "test": []}
 
     def initialize(self):
         if not self._is_loaded:
-            self._load_descriptors()
+            self._story_in_sequence = StoryInSequence(images_dir=os.path.join(self._root_path, "images"),
+                                                      annotations_dir=os.path.join(self._root_path, "descriptor"))
+
+        if self._samples_num is not None:
+            filtered_keys = sorted(self._story_in_sequence.Stories.keys(), key=int)[:self._samples_num]
+            self._story_in_sequence.Stories = {k: self._story_in_sequence.Stories[k] for k in filtered_keys}
 
         self._is_loaded = True
 
-    def _load_descriptors(self):
-        self._logger.info("Loading train descriptor to memory")
-        path = os.path.join(self._descriptor_paths, "train.story-in-sequence.json")
-        with open(path) as f:
-            self.data["train"] = json.load(f)
+    def get_random_story_id(self):
+        return random.choice(list(self._story_in_sequence.Stories.keys()))
 
-        self._logger.info("Loading val descriptor to memory")
-        path = os.path.join(self._descriptor_paths, "val.story-in-sequence.json")
-        with open(path) as f:
-            self.data["val"] = json.load(f)
-
-        self._logger.info("Loading test descriptor to memory")
-        path = os.path.join(self._descriptor_paths, "test.story-in-sequence.json")
-        with open(path) as f:
-            self.data["test"] = json.load(f)
-
-        self._logger.info("Done loading descriptors to memory")
-
+    def get_images_ids(self, story_id):
+        return self._story_in_sequence.Stories[story_id]["img_ids"]

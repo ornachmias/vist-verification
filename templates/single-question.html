@@ -21,15 +21,70 @@
     </script>
 </head>
 <body>
-    <div class="single-question">
-        <div class="images">
-            <ul class="image-sequence">
-            </ul>
+    <script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+	<crowd-form>
+        <short-instructions header="Images Sequence Instruction">
+            <p>In front of you there is a sequence made of 5 images.</p>
+            <p>Drag and drop the images by the way to believe describe a story.</p>
+            <p>When you are done ordering, click on the button below the sequence.</p>
+	    </short-instructions>
+
+        <full-instructions header="Images Sequence Instruction">
+            <p>In front of you there is a sequence made of 5 images.</p>
+            <p>Drag and drop the images by the way to believe describe a story.</p>
+            <p>When you are done ordering, click on the button below the sequence.</p>
+	    </full-instructions>
+
+        <div id="sequence-1" class="single-question">
+            <div class="images">
+                <ul class="image-sequence">
+                </ul>
+            </div>
+            <div class="buttons">
+                <crowd-button class="save-button">Save Order</crowd-button>
+            </div>
         </div>
-        <div class="buttons">
-            <button class="save-button">Save Order</button>
+
+        <div id="sequence-2" class="single-question">
+            <div class="images">
+                <ul class="image-sequence">
+                </ul>
+            </div>
+            <div class="buttons">
+                <crowd-button class="save-button">Save Order</crowd-button>
+            </div>
         </div>
-    </div>
+
+        <div id="sequence-3" class="single-question">
+            <div class="images">
+                <ul class="image-sequence">
+                </ul>
+            </div>
+            <div class="buttons">
+                <crowd-button class="save-button">Save Order</crowd-button>
+            </div>
+        </div>
+
+        <div id="sequence-4" class="single-question">
+            <div class="images">
+                <ul class="image-sequence">
+                </ul>
+            </div>
+            <div class="buttons">
+                <crowd-button class="save-button">Save Order</crowd-button>
+            </div>
+        </div>
+
+        <div id="sequence-5" class="single-question">
+            <div class="images">
+                <ul class="image-sequence">
+                </ul>
+            </div>
+            <div class="buttons">
+                <crowd-button class="save-button">Save Order</crowd-button>
+            </div>
+        </div>
+    </crowd-form>
 </body>
 <script src="static/single-question.js"></script>
 </html>

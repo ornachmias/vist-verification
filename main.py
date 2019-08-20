@@ -2,17 +2,19 @@ import json
 import logging
 
 from flask import Flask, render_template, make_response, jsonify, request
+
+import configurations
 import logHandler
 from dataLoader import DataLoader
-from databaseAccess import DatabaseAccess
+
 from vistDataset import VistDataset
 import base64
 
 app = Flask(__name__)
 data_loader = DataLoader(root_path="./data")
-vist_dataset = VistDataset(root_path="./data")
-database_access = DatabaseAccess(scripts_root="./mysql")
+vist_dataset = VistDataset(root_path="./data", samples_num=configurations.samples)
 
+invalid_assignment_id = "ASSIGNMENT_ID_NOT_AVAILABLE"
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -25,17 +27,19 @@ def home():
         "some_info_to_pass": request.args.get("someInfoToPass")
     }
 
-    print("Request parameters: {}".format(json.dumps(render_data)))
+    if render_data["assignment_id"] != invalid_assignment_id:
+        print("Request parameters: {}".format(json.dumps(render_data)))
 
     resp = make_response(render_template("single-question.html"))
-    resp.headers['x-frame-options'] = 'dummy'
+    # resp.headers['x-frame-options'] = 'dummy'
     resp.headers['ContentType'] = "text/html"
     return resp
 
 
 @app.route('/api/questions/<string:question_id>', methods=['GET'])
 def get_images_ids(question_id):
-    return jsonify(["180526609", "180526610", "181482729", "181602777", "181603598"])
+    story_id = vist_dataset.get_random_story_id()
+    return json.dumps(vist_dataset.get_images_ids(story_id))
 
 
 @app.route('/api/questions', methods=['POST'])
@@ -45,7 +49,10 @@ def create_new_question():
 
 @app.route('/api/questions/<string:question_id>', methods=['POST'])
 def submit_order(question_id):
-    print(request.get_json());
+    if request.args.get("assignmentId") == invalid_assignment_id:
+        return
+
+    print(request.get_json())
     return "{} successfully submitted.".format(question_id), 200
 
 
@@ -58,6 +65,5 @@ if __name__ == "__main__":
     logHandler.initialize()
     data_loader.initialize()
     vist_dataset.initialize()
-    database_access.initialize(vist_dataset)
 
     app.run(host='127.0.0.1', port=8080, debug=True)

@@ -51,6 +51,7 @@ ns.model = (function() {
             };
             $.ajax(ajax_options)
             .done(function(data) {
+                $("#includedContent").load("b.html");
                 $event_pump.trigger('model_create_new_question_success', [data]);
             })
             .fail(function(xhr, textStatus, errorThrown) {
@@ -82,7 +83,8 @@ ns.view = (function() {
     'use strict';
 
     let $question_id = "";
-    let $image_order = {}
+    let $image_ids = []
+    let $current_index = 0;
 
     // return the API
     return {
@@ -91,13 +93,14 @@ ns.view = (function() {
         },
         get_image_order: function(){
             let result = {}
-            for (var index in $image_order){
+            for (const index of $image_ids){
                 var listItem = document.getElementById(index);
                 result[index] = $("li").index(listItem);
             }
             return [$question_id, result];
         },
         build_sequence: function(image_id, content) {
+            $image_ids.push(image_id);
             let sequence = '<li id="' + image_id + '" class="ui-state-default"><img src="data:image/jpg;base64, ' + content + '"/></li>';
             $('.single-question > .images > .image-sequence').append(sequence);
         },
@@ -151,7 +154,6 @@ ns.controller = (function(m, v) {
         for (var i = 0; i < data.length; i++) {
             images[data[i]] = model.get_image(data[i]);
         }
-
     });
 
     $event_pump.on('model_get_image_success', function(e, image_id, data) {
