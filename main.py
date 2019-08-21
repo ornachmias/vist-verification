@@ -22,44 +22,48 @@ def home():
     render_data = {
         "worker_id": request.args.get("workerId"),
         "assignment_id": request.args.get("assignmentId"),
-        "amazon_host": "https://workersandbox.mturk.com/mturk/externalSubmit",
-        "hit_id": request.args.get("hitId"),
-        "some_info_to_pass": request.args.get("someInfoToPass")
+        "hit_id": request.args.get("hitId")
     }
 
     if render_data["assignment_id"] != invalid_assignment_id:
         print("Request parameters: {}".format(json.dumps(render_data)))
 
-    resp = make_response(render_template("single-question.html"))
+    questions = []
+    for x in range(configurations.number_of_questions):
+        story_id = vist_dataset.get_random_story_id()
+        question = type('Question', (object,), {})()
+        question.id = story_id
+        question.count = x + 1
+        question.images = []
+        image_ids = vist_dataset.get_images_ids(question.id)
+
+        for i in image_ids:
+            image = type('Image', (object,), {})()
+            image.id = i
+            image.content = base64.b64encode(data_loader.load_image(i)).decode('ascii')
+            question.images.append(image)
+
+        questions.append(question)
+
+    resp = make_response(render_template("full-hit.html", questions=questions, worker_id=render_data["worker_id"],
+                                         assignment_id=render_data["assignment_id"], hit_id=render_data["hit_id"]))
+
     # resp.headers['x-frame-options'] = 'dummy'
     resp.headers['ContentType'] = "text/html"
     return resp
 
 
-@app.route('/api/questions/<string:question_id>', methods=['GET'])
-def get_images_ids(question_id):
-    story_id = vist_dataset.get_random_story_id()
-    return json.dumps(vist_dataset.get_images_ids(story_id))
+@app.route('/api/questions/results', methods=['POST'])
+def submit_results():
+    print("Request parameters: {}".format(request.data))
+    return "true"
 
 
-@app.route('/api/questions', methods=['POST'])
-def create_new_question():
-    return "question-id-1"
-
-
-@app.route('/api/questions/<string:question_id>', methods=['POST'])
-def submit_order(question_id):
-    if request.args.get("assignmentId") == invalid_assignment_id:
-        return
-
-    print(request.get_json())
-    return "{} successfully submitted.".format(question_id), 200
-
-
-@app.route('/api/images/<string:image_id>', methods=['GET'])
-def get_image(image_id):
-    return base64.b64encode(data_loader.load_image(image_id))
-
+@app.route('/api/done', methods=['GET'])
+def finish_hit():
+    resp = make_response(render_template("completed-hit.html"))
+    resp.headers['ContentType'] = "text/html"
+    return resp
 
 if __name__ == "__main__":
     logHandler.initialize()

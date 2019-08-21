@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Single Image Sequence</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        .image-sequence { margin: 0px; list-style-type: none; padding: 0; height: 300px; }
+        .image-sequence li { margin: 3px; float: left; height: 300px; width: 300px;}
+        .buttons {clear:both; }
+        .save-button {margin: 10px 0px 0px 3px;}
+        img{max-width:300px; max-height:300px;}
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $( function() {
+        $( ".image-sequence" ).sortable();
+        $( ".image-sequence" ).disableSelection();
+        } );
+    </script>
+</head>
+<body>
+    <script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+	<crowd-form>
+        <short-instructions header="Images Sequence Instruction">
+            <p>In front of you there is a sequence made of 5 images.</p>
+            <p>Drag and drop the images by the way to believe describe a story.</p>
+            <p>When you are done ordering, click on the button below the sequence.</p>
+	    </short-instructions>
+
+        <full-instructions header="Images Sequence Instruction">
+            <p>In front of you there is a sequence made of 5 images.</p>
+            <p>Drag and drop the images by the way to believe describe a story.</p>
+            <p>When you are done ordering, click on the button below the sequence.</p>
+	    </full-instructions>
+
+        <div id="worker_id" content="{{worker_id}}" style="visibility: hidden;"></div>
+        <div id="assignment_id" content="{{assignment_id}}" style="visibility: hidden;"></div>
+        <div id="hit_id" content="{{hit_id}}" style="visibility: hidden;"></div>
+
+        <div>
+        {% for question in questions %}
+            <div style="float: left;">
+                <h2>Sequence {{question.count}}</h2>
+                <div id="{{question.id}}" class="single-question">
+                    <div class="images">
+                        <ul class="image-sequence">
+                            {% for image in question.images %}
+                            <li id="{{image.id}}" class="ui-state-default"><img src="data:image/jpg;base64,{{image.content | safe}}"/></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+        <footer id="footerContainer" style="height: 80px;">
+            <div id="actionsContainer">
+                <crowd-button id="submit-sequences" variant="primary" form-action="submit">Submit Sequences</crowd-button>
+            </div>
+        </footer>
+        <!--        <div id="actionsContainer">-->
+        <!--            <crowd-button variant="primary" form-action="submit">Submit Sequences</crowd-button>-->
+        <!--        </div>-->
+
+    </crowd-form>
+</body>
+
+<style>#footerContainer {
+  border-top: 1px solid rgba(0,28,36,.25);
+  position: absolute;
+  background-color: var(--awsui-color-background-container-content);
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 1;
+  text-align: left;
+}
+
+#toolsContainer {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
+@media screen and (max-width: 1300px) {
+  #toolsContainer {
+    width: calc(100% - 350px);
+  }
+}
+
+#toolsContainer span.awsui-tooltip-trigger, #toolsContainer span.awsui-tooltip-trigger span {
+  display: inline;
+}
+
+#actionsContainer {
+  display: flex;
+  position: absolute;
+  top: 25px;
+  right: 35px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+#actionsContainer .nothing-to-annotate {
+  align-self: center;
+  margin-right: 1rem;
+  line-height: 1rem;
+  vertical-align: text-bottom;
+}
+
+#actionsContainer .nothing-to-annotate input {
+  margin-right: .5rem;
+  vertical-align: text-bottom;
+  position: relative;
+  bottom: 1px;
+}
+
+#actionsContainer .nothing-to-annotate span {
+  vertical-align: text-bottom;
+}
+
+#actionsContainer awsui-checkbox svg > rect {
+  fill: white;
+  stroke: black;
+}
+
+#actionsContainer awsui-checkbox .awsui-checkbox-disabled svg > rect {
+  fill: white;
+  stroke: #aab7b8;
+}
+
+#actionsContainer awsui-checkbox svg > polyline {
+  stroke: black;
+}
+
+#toolsContainer button {
+  background: white;
+}
+
+#toolsContainer button:hover {
+  background: #F0F1F1;
+}
+
+#toolsContainer button:active {
+  background: #E7F4FC;
+  /* Supress Safari behavior that changes color to white when button is clicked */
+  color: black;
+}
+
+/* Prevent Chrome's default fuzzy outline that it adds on focus */
+#toolsContainer button:focus {
+  outline: none;
+}
+
+.tool-tooltip {
+  text-align: left;
+}
+
+.tool-tooltip > p {
+  margin: 0;
+  padding: 0;
+}
+</style>
+<script src="static/full-hit.js"></script>
+</html>
