@@ -13,7 +13,6 @@ import base64
 app = Flask(__name__)
 data_loader = DataLoader(root_path="./data")
 vist_dataset = VistDataset(root_path="./data", samples_num=configurations.samples)
-
 invalid_assignment_id = "ASSIGNMENT_ID_NOT_AVAILABLE"
 
 
@@ -29,11 +28,13 @@ def home():
         print("Request parameters: {}".format(json.dumps(render_data)))
 
     questions = []
-    for x in range(configurations.number_of_questions):
-        story_id = vist_dataset.get_random_story_id()
+    story_ids = vist_dataset.get_random_story_ids(configurations.number_of_questions)
+    x = 1
+    for story_id in story_ids:
         question = type('Question', (object,), {})()
         question.id = story_id
-        question.count = x + 1
+        question.count = x
+        x += 1
         question.images = []
         image_ids = vist_dataset.get_images_ids(question.id)
 
@@ -65,9 +66,9 @@ def finish_hit():
     resp.headers['ContentType'] = "text/html"
     return resp
 
+
 if __name__ == "__main__":
     logHandler.initialize()
     data_loader.initialize()
-    vist_dataset.initialize()
 
     app.run(host='127.0.0.1', port=8080, debug=True)

@@ -1,3 +1,13 @@
+imageio
+nose
+sympy
+pandas
+jupyter
+ipython
+scipy
+numpy
+matplotlib
+Pillow
 boto
 boto3
 flask

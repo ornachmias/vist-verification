@@ -3,7 +3,8 @@ import json
 import numpy as np
 import math
 from datetime import datetime
-from scipy.misc import imread, imresize
+from PIL import Image
+from imageio import imread
 import matplotlib.pyplot as plt
 
 # Taken from https://github.com/lichengunc/vist_api/blob/master/vist.py
@@ -107,7 +108,8 @@ class StoryInSequence:
         img_content = imread(img_file)
         if len(img_content.shape) == 2:
             img_content = np.tile(img_content[:, :, np.newaxis], (1, 1, 3))
-        img_content = imresize(img_content, (224, 224))
+
+        img_content = np.array(Image.fromarray(img_content).resize((224, 224)))
         return img_content
 
     def show_story(self, story_id, show_image=True, show_sents=True):

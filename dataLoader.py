@@ -4,7 +4,6 @@ import urllib.request
 import tarfile
 
 from google_drive_downloader import GoogleDriveDownloader as gdd
-from PIL import Image
 
 import configurations
 import logHandler
@@ -36,13 +35,7 @@ class DataLoader(object):
 
     def load_image(self, image_id):
         image_path = self._find_file(image_id)
-
-        if not os.path.exists(image_path + ".thumbnail.jpeg"):
-            im = Image.open(image_path)
-            im.thumbnail([300, 300])
-            im.save(image_path + ".thumbnail.jpeg")
-
-        in_file = open(image_path + ".thumbnail.jpeg", "rb")
+        in_file = open(image_path, "rb")
         data = in_file.read()
         in_file.close()
         return data
@@ -50,7 +43,7 @@ class DataLoader(object):
     def _find_file(self, image_id):
         for dirpath, dirnames, filenames in os.walk(self._images_path):
             for filename in filenames:
-                if os.path.splitext(filename)[0] == image_id:
+                if os.path.splitext(filename)[0].startswith(image_id + '.'):
                     return os.path.join(dirpath, filename)
 
     def _download_images(self, file_name, force_download=False):
