@@ -38,9 +38,12 @@ def home():
         question.images = []
         image_ids = vist_dataset.get_images_ids(question.id)
 
+        image_count = 1
         for i in image_ids:
             image = type('Image', (object,), {})()
             image.id = i
+            image.count = image_count
+            image_count += 1
             image.content = base64.b64encode(data_loader.load_image(i)).decode('ascii')
             question.images.append(image)
 

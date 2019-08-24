@@ -1,6 +1,57 @@
 // Create the namespace instance
 let ns = {};
 
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("QuestionId", ev.target.getAttribute("questionid"));
+  ev.dataTransfer.setData("ImageId", ev.target.getAttribute("imageid"));
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  var questionid = ev.dataTransfer.getData("QuestionId");
+  var imageid = ev.dataTransfer.getData("ImageId");
+
+  if(ev.target.getAttribute("questionid") == questionid)
+    imageElem = document.querySelectorAll("[imageid='"+ imageid + "']")[0];
+    var container = ev.target;
+    if (container.nodeName.toLowerCase() == "img")
+    {
+        container = ev.target.parentElement;
+    }
+
+    setTargetImageInSource(imageElem, container);
+}
+
+function setTargetImageInSource(movedImage, targetContainer) {
+    var targetImageElem = targetContainer.firstElementChild;
+    var sourceContainer = movedImage.parentElement;
+    sourceContainer.innerHTML = '';
+
+    if (targetContainer.children.length > 0)
+    {
+        sourceContainer.appendChild(targetImageElem);
+        if (isResultContainer(sourceContainer))
+            sourceContainer.setAttribute("class", "result-box-completed");
+    }
+    else
+    {
+        if (isResultContainer(sourceContainer))
+            sourceContainer.setAttribute("class", "result-box");
+    }
+
+    targetContainer.innerHTML = '';
+    targetContainer.appendChild(movedImage);
+    targetContainer.setAttribute("class", "result-box-completed");
+}
+
+function isResultContainer(container) {
+    return container.getAttribute("class") == "result-box" || container.getAttribute("class") == "result-box-completed"
+}
+
 // Create the model instance
 ns.model = (function() {
     'use strict';
