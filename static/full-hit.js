@@ -4,9 +4,9 @@ let ns = {};
 function submit() {
     var result = {};
 
-    result["worker_id"] = document.getElementById("worker_id");
-    result["assignment_id"] = document.getElementById("assignment_id");
-    result["hit_id"] = document.getElementById("hit_id");
+    result["worker_id"] = document.getElementById("worker_id").getAttribute("content");
+    result["assignment_id"] = document.getElementById("assignment_id").getAttribute("content");
+    result["hit_id"] = document.getElementById("hit_id").getAttribute("content");
 
     var resultSequences = document.getElementsByClassName("single-question");
     for (var i = 0; i < resultSequences.length; i++) {
