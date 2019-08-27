@@ -18,7 +18,19 @@ class VistDataset(object):
 
     def get_random_story_ids(self, num):
         self._load_data()
-        return random.sample(list(self._story_in_sequence.Stories.keys()), num)
+        selected_stories = []
+        selected_images = []
+
+        while True:
+            story_id = random.choice(list(self._story_in_sequence.Stories.keys()))
+            if set(self._story_in_sequence.Stories[story_id]["img_ids"]).isdisjoint(selected_images):
+                selected_stories.append(story_id)
+                selected_images.extend(self._story_in_sequence.Stories[story_id]["img_ids"])
+
+            if len(selected_stories) == num:
+                break
+
+        return selected_stories
 
     def get_images_ids(self, story_id):
         self._load_data()

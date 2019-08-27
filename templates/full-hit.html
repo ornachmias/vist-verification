@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Single Image Sequence</title>
+    <title>Image Sequences Ordering</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -15,6 +15,16 @@
         <div id="hit_id" content="{{hit_id}}" class="hidden-data"></div>
 
         <div id="questions-collection">
+        <h1>Image Sequences Ordering</h1>
+        <h2>Instruction</h2>
+        <ol id="instruction">
+            <p>In the following questions you will see a sequences of 5 images.</p>
+            <p>In each question, the images are supposed to convey a simple story, from left to right, but their order was mixed.</p>
+            <p>Please re-order each sequence of images from left to right in such a way that they will convey a coherent story as much as you can.</p>
+            <p>You can click and drag images to change their position.</p>
+            <p>Once you are satisfied with the ordering of the sequence, please click on the button below the sequences.</p>
+            <p>Thank you.</p>
+        </ol>
         {% for question in questions %}
             <h2>Sequence {{question.count}}</h2>
             <div>
@@ -37,7 +47,11 @@
             </div>
         {% endfor %}
         </div>
+
     </form>
+    <div class="holder">
+        <button class="submit-button" onclick="submit()">Submit</button>
+    </div>
 </body>
 <script src="static/full-hit.js"></script>
 </html>
