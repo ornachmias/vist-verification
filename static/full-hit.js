@@ -28,7 +28,7 @@ function submit() {
         }
     }
 
-    postResults(result);
+    postResults(result["assignment_id"], result);
     return true;
 }
 
@@ -90,10 +90,10 @@ function isResultContainer(container) {
     return container.getAttribute("class") == "result-box" || container.getAttribute("class") == "result-box-completed"
 }
 
-function postResults(params, method='post') {
+function postResults(assignmentId, params, method='post') {
     const form = document.createElement('form');
     form.method = method;
-    form.action = "https://workersandbox.mturk.com/mturk/externalSubmit";
+    form.action = "https://workersandbox.mturk.com/mturk/externalSubmit" + "?assignmentId=" + assignmentId;
 
     for (const key in params) {
         if (params.hasOwnProperty(key)) {
