@@ -74,4 +74,4 @@ if __name__ == "__main__":
     logHandler.initialize()
     data_loader.initialize()
 
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True, ssl_context='adhoc')

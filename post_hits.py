@@ -12,11 +12,11 @@ mturk = boto3.client(
     aws_secret_access_key=configurations.aws_secret_access_key,
 )
 
-question = ExternalQuestion(configurations.api_url, frame_height=600)
+question = ExternalQuestion(configurations.api_url, frame_height=0)
 new_hit = mturk.create_hit(
-    Title='Answer a simple question',
-    Description='Help research a topic',
-    Keywords='question, answer, research',
+    Title='Image Sequences Ordering',
+    Description='Order image sequences to tell a story.',
+    Keywords='question, answer, research, images, sequences',
     Reward='0.05',
     MaxAssignments=1,
     LifetimeInSeconds=172800,
