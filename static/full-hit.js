@@ -48,16 +48,20 @@ function allowDrop(ev) {
 
 function drag(ev) {
   ev.dataTransfer.setData("QuestionId", ev.target.getAttribute("questionid"));
+  ev.dataTransfer.setData("QUUID", ev.target.getAttribute("quuid"));
   ev.dataTransfer.setData("ImageId", ev.target.getAttribute("imageid"));
+  ev.dataTransfer.setData("IUUID", ev.target.getAttribute("iuuid"));
 }
 
 function drop(ev) {
   ev.preventDefault();
   var questionid = ev.dataTransfer.getData("QuestionId");
+  var questionuuiid = ev.dataTransfer.getData("QUUID");
   var imageid = ev.dataTransfer.getData("ImageId");
+  var imageuuid = ev.dataTransfer.getData("IUUID");
 
-  if(ev.target.getAttribute("questionid") == questionid)
-    imageElem = document.querySelectorAll("[imageid='"+ imageid + "']")[0];
+  if(ev.target.getAttribute("QUUID") == questionuuiid)
+    imageElem = document.querySelectorAll("[iuuid='"+ imageuuid + "']")[0];
     var container = ev.target;
     if (container.nodeName.toLowerCase() == "img") {
         container = ev.target.parentElement;

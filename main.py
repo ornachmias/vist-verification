@@ -1,5 +1,6 @@
 import json
 import logging
+import uuid
 
 from flask import Flask, render_template, make_response, jsonify, request
 
@@ -29,10 +30,15 @@ def home():
 
     questions = []
     story_ids = vist_dataset.get_random_story_ids(configurations.number_of_questions)
+
+    # In order to validate user's answers we want one of the question to be a duplicate
+    story_ids.append(story_ids[0])
+
     x = 1
     for story_id in story_ids:
         question = type('Question', (object,), {})()
         question.id = story_id
+        question.uuid = generate_uui()
         question.count = x
 
         if configurations.show_original_description:
@@ -46,6 +52,7 @@ def home():
         for i in image_ids:
             image = type('Image', (object,), {})()
             image.id = i
+            image.uuid = generate_uui()
             image.count = image_count
             image_count += 1
             image.content = base64.b64encode(data_loader.load_image(i)).decode('ascii')
@@ -72,6 +79,10 @@ def finish_hit():
     resp = make_response(render_template("completed-hit.html"))
     resp.headers['ContentType'] = "text/html"
     return resp
+
+
+def generate_uui():
+    return str(uuid.uuid4())
 
 
 if __name__ == "__main__":

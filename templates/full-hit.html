@@ -29,18 +29,18 @@
             <h2>Sequence {{question.count}}</h2>
             <div class="question-description">{{question.description}}</div>
             <div>
-                <div questionid="{{question.id}}" class="single-question">
+                <div questionid="{{question.id}}" quuid="{{question.uuid}}" class="single-question">
                     <ul class="result-sequence">
                         {% for image in question.images %}
                         <li>
-                        <div class="result-box" ondrop="drop(event)" ondragover="allowDrop(event)" questionid="{{question.id}}">{{image.count}}</div>
+                        <div class="result-box" ondrop="drop(event)" ondragover="allowDrop(event)" quuid="{{question.uuid}}" questionid="{{question.id}}">{{image.count}}</div>
                         </li>
                         {% endfor %}
                     </ul>
                     <ul class="image-sequence">
                         {% for image in question.images %}
                         <li>
-                            <img draggable="true" ondragstart="drag(event)" imageid="{{image.id}}" questionid="{{question.id}}" src="data:image/jpg;base64,{{image.content | safe}}"/>
+                            <img draggable="true" ondragstart="drag(event)" iuuid="{{image.uuid}}" imageid="{{image.id}}" quuid="{{question.uuid}}" questionid="{{question.id}}" src="data:image/jpg;base64,{{image.content | safe}}"/>
                         </li>
                         {% endfor %}
                     </ul>
