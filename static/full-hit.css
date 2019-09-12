@@ -12,6 +12,15 @@
     width:100%;
 }
 
+.user-description {
+    float: left;
+    overflow:hidden;
+    width:60%;
+    resize: none;
+    margin-left: 45px;
+    height: 100px;
+}
+
 .single-question img {
     float:left;
     width:100%;

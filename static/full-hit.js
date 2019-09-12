@@ -18,8 +18,12 @@ function submit() {
             return false;
         }
 
+        var userDescription = resultSequence.getElementsByTagName("textarea")[0].value;
+
         var questionId = resultSequence.getAttribute("questionid");
         result[getQuestionIdKey(i)] = questionId;
+        result[getQuestionIdKey(i) + "_description"] = userDescription;
+
         for (j = 0; j < resultBoxes.length; j++) {
             var imageElement = resultBoxes[j].getElementsByTagName("img")[0];
             var imageId = imageElement.getAttribute("imageid");

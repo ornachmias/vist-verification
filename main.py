@@ -61,7 +61,8 @@ def home():
         questions.append(question)
 
     resp = make_response(render_template("full-hit.html", questions=questions, worker_id=render_data["worker_id"],
-                                         assignment_id=render_data["assignment_id"], hit_id=render_data["hit_id"]))
+                                         assignment_id=render_data["assignment_id"], hit_id=render_data["hit_id"],
+                                         user_input=configurations.get_user_description))
 
     # resp.headers['x-frame-options'] = 'dummy'
     resp.headers['ContentType'] = "text/html"

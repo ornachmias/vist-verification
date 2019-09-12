@@ -22,6 +22,9 @@
             <p>In each question, the images are supposed to convey a simple story, from left to right, but their order was mixed.</p>
             <p>Please re-order each sequence of images from left to right in such a way that they will convey a coherent story as much as you can.</p>
             <p>You can click and drag images to change their position.</p>
+            {% if user_input %}
+            <p>When done ordering the photos, enter a short story to describe the sequence.</p>
+            {% endif %}
             <p>Once you are satisfied with the ordering of the sequence, please click on the button below the sequences.</p>
             <p>Thank you.</p>
         </ol>
@@ -30,6 +33,10 @@
             <div class="question-description">{{question.description}}</div>
             <div>
                 <div questionid="{{question.id}}" quuid="{{question.uuid}}" class="single-question">
+                    {% if user_input %}
+                    <textarea questionid="{{question.id}}" quuid="{{question.uuid}}" class="user-description"></textarea>
+                    {% endif %}
+
                     <ul class="result-sequence">
                         {% for image in question.images %}
                         <li>

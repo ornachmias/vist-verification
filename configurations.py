@@ -31,3 +31,4 @@ api_url = ""
 samples = 100
 number_of_questions = 5
 show_original_description = False
+get_user_description = False
