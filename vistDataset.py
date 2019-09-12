@@ -36,6 +36,19 @@ class VistDataset(object):
         self._load_data()
         return self._story_in_sequence.Stories[story_id]["img_ids"]
 
+    def get_story_description(self, story_id):
+        self._load_data()
+        sent_ids = self._story_in_sequence.Stories[story_id]["sent_ids"]
+        sents = []
+        for sent_id in sent_ids:
+            sents.append(self._story_in_sequence.Sents[sent_id])
+
+        description = ""
+        for s in sents:
+            description += s["original_text"]
+
+        return description
+
     def _load_data(self):
         if not self._is_loaded:
             self._story_in_sequence = StoryInSequence(images_dir=os.path.join(self._root_path, "images"),

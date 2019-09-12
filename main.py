@@ -34,6 +34,10 @@ def home():
         question = type('Question', (object,), {})()
         question.id = story_id
         question.count = x
+
+        if configurations.show_original_description:
+            question.description = vist_dataset.get_story_description(story_id)
+
         x += 1
         question.images = []
         image_ids = vist_dataset.get_images_ids(question.id)

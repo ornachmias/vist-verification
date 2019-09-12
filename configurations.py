@@ -26,7 +26,8 @@ mysql_password = 'Aa123456'
 aws_access_key_id = "XXX"
 aws_secret_access_key = "XXX"
 
-api_url = "https://vist-verification-gcloud.appspot.com/"
+api_url = ""
 
 samples = 100
-number_of_questions = 2
+number_of_questions = 5
+show_original_description = False

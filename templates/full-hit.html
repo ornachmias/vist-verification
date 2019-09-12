@@ -27,6 +27,7 @@
         </ol>
         {% for question in questions %}
             <h2>Sequence {{question.count}}</h2>
+            <div class="question-description">{{question.description}}</div>
             <div>
                 <div id="{{question.id}}" class="single-question">
                     <ul class="result-sequence">
