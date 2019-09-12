@@ -18,7 +18,7 @@ function submit() {
             return false;
         }
 
-        var questionId = resultSequence.getAttribute("id");
+        var questionId = resultSequence.getAttribute("questionid");
         result[getQuestionIdKey(i)] = questionId;
         for (j = 0; j < resultBoxes.length; j++) {
             var imageElement = resultBoxes[j].getElementsByTagName("img")[0];
