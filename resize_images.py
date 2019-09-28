@@ -2,6 +2,7 @@ import os
 import sys
 from os import listdir
 from os.path import isfile, join
+from shutil import copyfile
 
 from PIL import Image
 from tqdm import tqdm
@@ -44,6 +45,9 @@ files = [f for f in listdir(source_directory) if isfile(join(source_directory, f
 for f in tqdm(files):
     source_file = join(source_directory, f)
     dest_file = join(dest_directory, f)
-    image = Image.open(source_file)
-    image.thumbnail(image_size)
-    image.save(dest_file)
+    try:
+        image = Image.open(source_file)
+        image.thumbnail(image_size)
+        image.save(dest_file)
+    except:
+        copyfile(source_file, dest_file)
