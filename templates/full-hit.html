@@ -18,15 +18,29 @@
         <h1>Image Sequences Ordering</h1>
         <h2>Instruction</h2>
         <ol id="instruction">
-            <p>In the following questions you will see a sequences of 5 images.</p>
-            <p>In each question, the images are supposed to convey a simple story, from left to right, but their order was mixed.</p>
-            <p>Please re-order each sequence of images from left to right in such a way that they will convey a coherent story as much as you can.</p>
-            <p>You can click and drag images to change their position.</p>
             {% if user_input %}
-            <p>When done ordering the photos, enter a short story to describe the sequence.</p>
+                <p>In the following questions you will see a sequences of 5 images.</p>
+                <p>In each question, the images are supposed to convey a simple story, from left to right, but their order was mixed.</p>
+                <p>Please re-order each sequence of images from left to right in such a way that they will convey a coherent story as much as you can.</p>
+                <p>You can drag each image to its position and also change the position after dropping.</p>
+                <p>After you're done ordering the images, please write the story in the available text area.</p>
+                <p>Once you are satisfied with the ordering of all the sequences and wrote a story for each sequence, please click on the button at the bottom of the page.</p>
+                <p>Thank you.</p>
+            {% elif story_description %}
+                <p>In the following questions you will see a sequences of 5 images with a short story.</p>
+                <p>In each question the images convey the story attached, but their order was mixed.</p>
+                <p>Please re-order each sequence of images from left to right in such a way that they will match the attached story as much as you can.</p>
+                <p>You can drag each image to its position and also change the position after dropping.</p>
+                <p>Once you are satisfied with the ordering of all the sequences, please click on the button at the bottom of the page.</p>
+                <p>Thank you.</p>
+            {% else %}
+                <p>In the following questions you will see a sequences of 5 images.</p>
+                <p>In each question, the images are supposed to convey a simple story, from left to right, but their order was mixed.</p>
+                <p>Please re-order each sequence of images from left to right in such a way that they will convey a coherent story as much as you can.</p>
+                <p>You can drag each image to its position and also change the position after dropping.</p>
+                <p>Once you are satisfied with the ordering of all the sequences, please click on the button at the bottom of the page.</p>
+                <p>Thank you.</p>
             {% endif %}
-            <p>Once you are satisfied with the ordering of the sequence, please click on the button below the sequences.</p>
-            <p>Thank you.</p>
         </ol>
         {% for question in questions %}
             <h2>Sequence {{question.count}}</h2>

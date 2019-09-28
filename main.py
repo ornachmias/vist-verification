@@ -1,11 +1,9 @@
 import json
-import logging
 import uuid
 
 from flask import Flask, render_template, make_response, jsonify, request
 
 import configurations
-import logHandler
 from dataLoader import DataLoader
 
 from vistDataset import VistDataset
@@ -62,7 +60,8 @@ def home():
 
     resp = make_response(render_template("full-hit.html", questions=questions, worker_id=render_data["worker_id"],
                                          assignment_id=render_data["assignment_id"], hit_id=render_data["hit_id"],
-                                         user_input=configurations.get_user_description))
+                                         user_input=configurations.get_user_description,
+                                         story_description=configurations.show_original_description))
 
     # resp.headers['x-frame-options'] = 'dummy'
     resp.headers['ContentType'] = "text/html"
@@ -87,7 +86,4 @@ def generate_uui():
 
 
 if __name__ == "__main__":
-    logHandler.initialize()
-    data_loader.initialize()
-
-    app.run(host='0.0.0.0', port=80, debug=True, ssl_context=('cert.pem', 'key.pem'))
+    app.run(host='0.0.0.0', port=80, debug=True)

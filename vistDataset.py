@@ -1,11 +1,8 @@
 import os
 import json
-import logging
 import random
 
 from storyInSequence import StoryInSequence
-
-import logHandler
 
 
 class VistDataset(object):
@@ -13,7 +10,6 @@ class VistDataset(object):
         self._samples_num = samples_num
         self._root_path = root_path
         self._story_in_sequence = None
-        self._logger = logging.getLogger(logHandler.general_logger)
         self._is_loaded = False
 
     def get_random_story_ids(self, num):
