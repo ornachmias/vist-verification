@@ -24,7 +24,7 @@ class DataLoader(object):
     def _find_file(self, image_id):
         for dirpath, dirnames, filenames in os.walk(self._images_path):
             for filename in filenames:
-                if os.path.splitext(filename)[0].startswith(image_id + '.'):
+                if filename.startswith(image_id + '.'):
                     return os.path.join(dirpath, filename)
 
         print("Cannot find image_id=" + image_id)
