@@ -25,5 +25,7 @@ class DataLoader(object):
                 if os.path.splitext(filename)[0].startswith(image_id + '.'):
                     return os.path.join(dirpath, filename)
 
+        print("Cannot find image_id=" + image_id)
+
 
 
