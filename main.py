@@ -10,8 +10,8 @@ from vistDataset import VistDataset
 import base64
 
 app = Flask(__name__)
-data_loader = DataLoader(root_path="./data")
-vist_dataset = VistDataset(root_path="./data", samples_num=configurations.samples)
+data_loader = DataLoader(root_path=configurations.root_data)
+vist_dataset = VistDataset(root_path=configurations.root_data, samples_num=configurations.samples)
 invalid_assignment_id = "ASSIGNMENT_ID_NOT_AVAILABLE"
 
 

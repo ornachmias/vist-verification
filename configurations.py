@@ -3,6 +3,7 @@ aws_secret_access_key = "XXX"
 
 api_url = ""
 
+root_data = "./data"
 samples = 100
 number_of_questions = 5
 show_original_description = False
