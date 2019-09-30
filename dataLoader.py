@@ -5,10 +5,12 @@ class DataLoader(object):
 
     def __init__(self, root_path) -> None:
         self._images_path = os.path.join(root_path, "images")
+        print("Images path: " + self._images_path)
         if not os.path.exists(self._images_path):
             os.makedirs(self._images_path)
 
         self._descriptor_path = os.path.join(root_path, "descriptor")
+        print("Descriptor path: " + self._descriptor_path)
         if not os.path.exists(self._descriptor_path):
             os.makedirs(self._descriptor_path)
 
