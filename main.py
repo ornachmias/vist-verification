@@ -1,7 +1,7 @@
 import json
 import uuid
 
-from flask import Flask, render_template, make_response, jsonify, request
+from flask import Flask, render_template, make_response, jsonify, request, send_from_directory
 
 import configurations
 from dataLoader import DataLoader
@@ -13,6 +13,11 @@ app = Flask(__name__)
 data_loader = DataLoader(root_path=configurations.root_data)
 vist_dataset = VistDataset(root_path=configurations.root_data, samples_num=configurations.samples)
 invalid_assignment_id = "ASSIGNMENT_ID_NOT_AVAILABLE"
+
+
+@app.route('/.well-known/acme-challenge/<path:filename>', methods=['GET', 'POST'])
+def serve_static_files(filename):
+    return send_from_directory('./static/.well-known/acme-challenge/', filename)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -86,4 +91,4 @@ def generate_uui():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=80, debug=False)
