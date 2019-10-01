@@ -161,3 +161,10 @@ button.site:after{
   margin-top: 20px;
   text-align: center;
 }
+
+.submit-holder {
+    width: 100%;
+    display: block;
+    float: left;
+    height: 500px
+}

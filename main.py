@@ -64,6 +64,10 @@ def home():
 
         questions.append(question)
 
+    test_question = create_test_question(x)
+    story_ids.append(test_question.id)
+    questions.append(test_question)
+
     resp = make_response(render_template("full-hit.html", questions=questions, worker_id=render_data["worker_id"],
                                          assignment_id=render_data["assignment_id"], hit_id=render_data["hit_id"],
                                          user_input=configurations.get_user_description,
@@ -89,6 +93,26 @@ def finish_hit():
 
 def generate_uui():
     return str(uuid.uuid4())
+
+
+def create_test_question(question_count):
+    question = type('Question', (object,), {})()
+    question.id = "test"
+    question.uuid = generate_uui()
+    question.count = question_count
+    question.images = []
+    image_count = 1
+    for i in ["00000000001", "00000000002", "00000000003", "00000000004", "00000000005"]:
+        image = type('Image', (object,), {})()
+        image.id = i
+        image.uuid = generate_uui()
+        image.count = image_count
+        image_count += 1
+        image.content = base64.b64encode(data_loader.load_image(i)).decode('ascii')
+        question.images.append(image)
+
+    return question
+
 
 
 if __name__ == "__main__":

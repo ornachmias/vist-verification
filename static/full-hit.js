@@ -18,7 +18,10 @@ function submit() {
             return false;
         }
 
-        var userDescription = resultSequence.getElementsByTagName("textarea")[0].value;
+        var userDescription = "";
+        if (resultSequence.getElementsByTagName("textarea").length > 0) {
+            userDescription = resultSequence.getElementsByTagName("textarea")[0].value;
+        }
 
         var questionId = resultSequence.getAttribute("questionid");
         result[getQuestionIdKey(i)] = questionId;
