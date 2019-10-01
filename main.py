@@ -1,4 +1,5 @@
 import json
+import random
 import uuid
 
 from flask import Flask, render_template, make_response, jsonify, request, send_from_directory
@@ -51,6 +52,7 @@ def home():
         x += 1
         question.images = []
         image_ids = vist_dataset.get_images_ids(question.id)
+        random.shuffle(image_ids)
 
         image_count = 1
         for i in image_ids:
@@ -102,7 +104,9 @@ def create_test_question(question_count):
     question.count = question_count
     question.images = []
     image_count = 1
-    for i in ["00000000001", "00000000002", "00000000003", "00000000004", "00000000005"]:
+    image_ids = ["00000000001", "00000000002", "00000000003", "00000000004", "00000000005"]
+    random.shuffle(image_ids)
+    for i in image_ids:
         image = type('Image', (object,), {})()
         image.id = i
         image.uuid = generate_uui()
