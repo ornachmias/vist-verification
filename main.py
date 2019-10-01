@@ -92,4 +92,10 @@ def generate_uui():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=False)
+    if configurations.private_key_path is not None \
+            and configurations.private_key_path is not "" \
+            and configurations.certificate_path is not None \
+            and configurations.certificate_path is not "":
+        app.run(host='0.0.0.0', port=80, debug=True, ssl_context=(configurations.certificate_path, configurations.private_key_path))
+    else:
+        app.run(host='0.0.0.0', port=80, debug=False)

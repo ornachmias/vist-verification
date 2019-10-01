@@ -9,3 +9,6 @@ number_of_questions = 5
 show_original_description = False
 get_user_description = False
 test_story_id = 0
+
+certificate_path = ""
+private_key_path = ""
