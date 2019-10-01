@@ -17,6 +17,7 @@ invalid_assignment_id = "ASSIGNMENT_ID_NOT_AVAILABLE"
 
 @app.route('/.well-known/acme-challenge/<path:filename>', methods=['GET', 'POST'])
 def serve_static_files(filename):
+    print("Requested static file: {}".format(filename))
     return send_from_directory('./static/.well-known/acme-challenge/', filename)
 
 
