@@ -22,6 +22,14 @@ class DataLoader(object):
         return data
 
     def _find_file(self, image_id):
+        images_extensions = ["jpg", "jpeg", "gif", "png"]
+        images_folders = ["train", "test"]
+
+        for ext in images_extensions:
+            for folder in images_folders:
+                if os.path.exists(os.path.join(self._images_path, folder, image_id + "." + ext)):
+                    return os.path.join(self._images_path, folder, image_id + "." + ext)
+
         for dirpath, dirnames, filenames in os.walk(self._images_path):
             for filename in filenames:
                 if filename.startswith(image_id + '.'):
