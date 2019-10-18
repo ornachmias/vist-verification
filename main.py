@@ -68,8 +68,10 @@ def home():
             image.count = image_count
             image_count += 1
             current_time = _print_log(current_time, "Loading image_id=" + str(i), render_data["worker_id"])
-            image.content = base64.b64encode(data_loader.load_image(i)).decode('ascii')
+            image_data = data_loader.load_image(i)
             current_time = _print_log(current_time, "Done loading image_id=" + str(i), render_data["worker_id"])
+            image.content = base64.b64encode(image_data).decode('ascii')
+            current_time = _print_log(current_time, "Done decoding image_id=" + str(i), render_data["worker_id"])
             question.images.append(image)
 
         questions.append(question)
