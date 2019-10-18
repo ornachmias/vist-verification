@@ -1,5 +1,5 @@
 import os
-
+import time
 
 class DataLoader(object):
 
@@ -15,10 +15,14 @@ class DataLoader(object):
             os.makedirs(self._descriptor_path)
 
     def load_image(self, image_id):
+        current_time = time.time()
         image_path = self._find_file(image_id)
+        print("Finding the file took", str(time.time() - current_time))
+        current_time = time.time()
         in_file = open(image_path, "rb")
         data = in_file.read()
         in_file.close()
+        print("Loading the file took", str(time.time() - current_time))
         return data
 
     def _find_file(self, image_id):
