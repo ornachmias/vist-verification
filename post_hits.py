@@ -12,13 +12,16 @@ mturk = boto3.client(
     aws_secret_access_key=configurations.aws_secret_access_key,
 )
 
+balance = mturk.get_account_balance()
+print("Available balance: " + balance["AvailableBalance"])
+
 question = ExternalQuestion(configurations.api_url, frame_height=0)
 new_hit = mturk.create_hit(
     Title='Image Sequences Ordering',
     Description='Order image sequences to tell a story.',
     Keywords='question, answer, research, images, sequences',
     Reward='0.16',
-    MaxAssignments=50,
+    MaxAssignments=20,
     LifetimeInSeconds=4320000,
     AssignmentDurationInSeconds=600,
     AutoApprovalDelayInSeconds=604800,

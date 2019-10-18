@@ -11,6 +11,7 @@ class VistDataset(object):
         self._root_path = root_path
         self._story_in_sequence = None
         self._is_loaded = False
+        self._load_data()
 
     def get_random_story_ids(self, num):
         self._load_data()
