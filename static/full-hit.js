@@ -3,7 +3,7 @@ let ns = {};
 
 function submit() {
     var result = {};
-
+    var questionIds = [];
     result["worker_id"] = document.getElementById("worker_id").getAttribute("content");
     result["assignment_id"] = document.getElementById("assignment_id").getAttribute("content");
     result["hit_id"] = document.getElementById("hit_id").getAttribute("content");
@@ -27,6 +27,11 @@ function submit() {
         result[getQuestionIdKey(i)] = questionId;
         result[getQuestionIdKey(i) + "_description"] = userDescription;
 
+        if (questionId != "test" && !questionIds.includes(questionId))
+        {
+            questionIds.push(questionId)
+        }
+
         for (j = 0; j < resultBoxes.length; j++) {
             var imageElement = resultBoxes[j].getElementsByTagName("img")[0];
             var imageId = imageElement.getAttribute("imageid");
@@ -35,6 +40,7 @@ function submit() {
         }
     }
 
+    postCounters(result["assignment_id"], questionIds);
     postResults(result["assignment_id"], result);
     return true;
 }
@@ -119,4 +125,14 @@ function postResults(assignmentId, params, method='post') {
 
     document.body.appendChild(form);
     form.submit();
+}
+
+function postCounters(assignmentId, questionIds, method='post') {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "XXX", false);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    var result = {};
+    result["question_ids"] = questionIds;
+    result["assignment_id"] = assignmentId;
+    xhr.send(JSON.stringify(result));
 }

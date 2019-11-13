@@ -6,16 +6,19 @@ from flask import Flask, render_template, make_response, jsonify, request, send_
 
 import configurations
 from dataLoader import DataLoader
+from hitCounter import HitCounter
 
 from vistDataset import VistDataset
 import base64
 import time
+from threading import RLock
 
 app = Flask(__name__)
 data_loader = DataLoader(root_path=configurations.root_data)
-vist_dataset = VistDataset(root_path=configurations.root_data, samples_num=configurations.samples)
+hit_counter = HitCounter(root_path=configurations.root_data, story_max_hits=configurations.max_story_submit)
+vist_dataset = VistDataset(root_path=configurations.root_data, hit_counter=hit_counter, samples_num=configurations.samples)
 invalid_assignment_id = "ASSIGNMENT_ID_NOT_AVAILABLE"
-
+lock = RLock()
 
 @app.route('/.well-known/acme-challenge/<path:filename>', methods=['GET', 'POST'])
 def serve_static_files(filename):
@@ -36,9 +39,7 @@ def home():
     questions = []
 
     current_time = time.time()
-    current_time = _print_log(current_time, "Getting random stories to present", render_data["worker_id"])
     story_ids = vist_dataset.get_random_story_ids(configurations.number_of_questions)
-    current_time = _print_log(current_time, "Selected stories: " + ",".join(story_ids), render_data["worker_id"])
 
     # In order to validate user's answers we want one of the question to be a duplicate
     story_ids.append(story_ids[0])
@@ -98,6 +99,12 @@ def home():
 @app.route('/api/questions/results', methods=['POST'])
 def submit_results():
     print("Request parameters: {}".format(request.data))
+    result = json.loads(request.data)
+    if result["assignment_id"] == invalid_assignment_id:
+        return True
+
+    for q in result["question_ids"]:
+        hit_counter.add_counter(q)
     return "true"
 
 

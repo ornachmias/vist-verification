@@ -6,11 +6,12 @@ from storyInSequence import StoryInSequence
 
 
 class VistDataset(object):
-    def __init__(self, root_path, samples_num=None) -> None:
+    def __init__(self, root_path, hit_counter, samples_num=None) -> None:
         self._samples_num = samples_num
         self._root_path = root_path
         self._story_in_sequence = None
         self._is_loaded = False
+        self._hit_counter = hit_counter
         self._load_data()
 
     def get_random_story_ids(self, num):
@@ -18,9 +19,9 @@ class VistDataset(object):
         selected_stories = []
         selected_images = []
 
-        while True:
-            story_id = random.choice(list(self._story_in_sequence.Stories.keys()))
-            if set(self._story_in_sequence.Stories[story_id]["img_ids"]).isdisjoint(selected_images):
+        for story_id in self._story_in_sequence.Stories.keys():
+            if set(self._story_in_sequence.Stories[story_id]["img_ids"]).isdisjoint(selected_images) \
+                    and not self._hit_counter.is_max_hit(story_id):
                 selected_stories.append(story_id)
                 selected_images.extend(self._story_in_sequence.Stories[story_id]["img_ids"])
 
