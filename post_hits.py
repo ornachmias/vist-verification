@@ -6,7 +6,7 @@ region_name = 'us-east-1'
 
 mturk = boto3.client(
     'mturk',
-    endpoint_url='https://mturk-requester-sandbox.us-east-1.amazonaws.com',
+    endpoint_url='https://mturk-requester.us-east-1.amazonaws.com',
     region_name='us-east-1',
     aws_access_key_id=configurations.aws_access_key_id,
     aws_secret_access_key=configurations.aws_secret_access_key,
@@ -20,8 +20,8 @@ new_hit = mturk.create_hit(
     Title='Image Sequences Ordering',
     Description='Order image sequences to tell a story.',
     Keywords='question, answer, research, images, sequences',
-    Reward='0.16',
-    MaxAssignments=20,
+    Reward='0.14',
+    MaxAssignments=100,
     LifetimeInSeconds=4320000,
     AssignmentDurationInSeconds=600,
     AutoApprovalDelayInSeconds=604800,

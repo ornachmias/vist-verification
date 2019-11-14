@@ -99,7 +99,7 @@ def home():
 @app.route('/api/questions/results', methods=['POST'])
 def submit_results():
     print("Request parameters: {}".format(request.data))
-    result = json.loads(request.data)
+    result = json.loads(request.data.decode('utf8'))
     if result["assignment_id"] == invalid_assignment_id:
         return True
 

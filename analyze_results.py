@@ -2,6 +2,7 @@ import sys
 import pandas
 import numpy as np
 from pandas import DataFrame
+import matplotlib.pyplot as plt
 
 import configurations
 
@@ -128,7 +129,17 @@ if len(test_invalid) != 0:
     for i in test_invalid:
         print(i)
 
+failed_both = set(dup_invalid).intersection(set(test_invalid))
+if len(failed_both) != 0:
+    print("HIT Ids that have failed to answer the obvious sequence and the duplicate sequence correctly:")
+    for i in failed_both:
+        print(i)
+
 valid_df = build_results(valid, df).sort_values(by=["QuestionId"])
-grouped = valid_df.groupby(['QuestionId', 'Image0', 'Image1', 'Image2', 'Image3', 'Image4'])['QuestionId', 'Image0', 'Image1', 'Image2', 'Image3', 'Image4'].count()
-print(grouped)
+question_count = valid_df.groupby("QuestionId").size().reset_index(name='total_counts')
+unique_order = valid_df.drop_duplicates().groupby("QuestionId").size().reset_index(name='unique_counts')
+graph_df = pandas.merge(question_count, unique_order, how="inner", on="QuestionId")
+graph_df.set_index("QuestionId",drop=True,inplace=True)
+graph_df.plot(kind='bar')
+plt.show()
 
