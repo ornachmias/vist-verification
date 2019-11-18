@@ -143,3 +143,13 @@ graph_df.set_index("QuestionId",drop=True,inplace=True)
 graph_df.plot(kind='bar')
 plt.show()
 
+print("Stories with less than 3 responses:")
+missing_questions = []
+for _, row in question_count.iterrows():
+    q = row[0]
+    c = row[1]
+
+    if c < 3:
+        missing_questions.append(q)
+
+print(missing_questions)

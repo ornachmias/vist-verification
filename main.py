@@ -39,7 +39,10 @@ def home():
     questions = []
 
     current_time = time.time()
-    story_ids = vist_dataset.get_random_story_ids(configurations.number_of_questions)
+    if configurations.story_ids is not None:
+        story_ids = vist_dataset.get_specific_story_ids(configurations.number_of_questions, configurations.story_ids)
+    else:
+        story_ids = vist_dataset.get_random_story_ids(configurations.number_of_questions)
 
     # In order to validate user's answers we want one of the question to be a duplicate
     story_ids.append(story_ids[0])
@@ -78,10 +81,29 @@ def home():
         questions.append(question)
 
     current_time = _print_log(current_time, "Loading test question", render_data["worker_id"])
-    test_question = create_test_question(x)
+    test_question = create_test_question("test", x,
+                                         ["00000000001", "00000000002", "00000000003", "00000000004", "00000000005"])
     current_time = _print_log(current_time, "Done loading test question", render_data["worker_id"])
     story_ids.append(test_question.id)
     questions.append(test_question)
+    x += 1
+
+    obvious1 = create_test_question("obvious1", x,
+                                         ["00000000006", "00000000007", "00000000008", "00000000009", "00000000010"])
+    story_ids.append(obvious1.id)
+    questions.append(obvious1)
+    x += 1
+
+    obvious2 = create_test_question("obvious2", x,
+                                    ["00000000011", "00000000012", "00000000013", "00000000014", "00000000015"])
+    story_ids.append(obvious2.id)
+    questions.append(obvious2)
+    x += 1
+
+    obvious3 = create_test_question("obvious3", x,
+                                    ["00000000016", "00000000017", "00000000018", "00000000019", "00000000020"])
+    story_ids.append(obvious3.id)
+    questions.append(obvious3)
 
     current_time = _print_log(current_time, "Generating response", render_data["worker_id"])
     resp = make_response(render_template("full-hit.html", questions=questions, worker_id=render_data["worker_id"],
@@ -119,14 +141,13 @@ def generate_uui():
     return str(uuid.uuid4())
 
 
-def create_test_question(question_count):
+def create_test_question(question_id, question_count, image_ids):
     question = type('Question', (object,), {})()
-    question.id = "test"
+    question.id = question_id
     question.uuid = generate_uui()
     question.count = question_count
     question.images = []
     image_count = 1
-    image_ids = ["00000000001", "00000000002", "00000000003", "00000000004", "00000000005"]
     random.shuffle(image_ids)
     for i in image_ids:
         image = type('Image', (object,), {})()

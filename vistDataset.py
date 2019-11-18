@@ -14,6 +14,23 @@ class VistDataset(object):
         self._hit_counter = hit_counter
         self._load_data()
 
+    def get_specific_story_ids(self, num, story_ids):
+        self._load_data()
+        selected_stories = []
+        selected_images = []
+
+        for story_id in story_ids:
+            story_id = str(story_id)
+            if set(self._story_in_sequence.Stories[story_id]["img_ids"]).isdisjoint(selected_images) \
+                    and not self._hit_counter.is_max_hit(story_id):
+                selected_stories.append(story_id)
+                selected_images.extend(self._story_in_sequence.Stories[story_id]["img_ids"])
+
+            if len(selected_stories) == num:
+                break
+
+        return selected_stories
+
     def get_random_story_ids(self, num):
         self._load_data()
         selected_stories = []
