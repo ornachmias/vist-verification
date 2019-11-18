@@ -88,22 +88,23 @@ def home():
     questions.append(test_question)
     x += 1
 
-    obvious1 = create_test_question("obvious1", x,
-                                         ["00000000006", "00000000007", "00000000008", "00000000009", "00000000010"])
-    story_ids.append(obvious1.id)
-    questions.append(obvious1)
-    x += 1
+    if configurations.use_obvious_stories:
+        obvious1 = create_test_question("obvious1", x,
+                                             ["00000000006", "00000000007", "00000000008", "00000000009", "00000000010"])
+        story_ids.append(obvious1.id)
+        questions.append(obvious1)
+        x += 1
 
-    obvious2 = create_test_question("obvious2", x,
-                                    ["00000000011", "00000000012", "00000000013", "00000000014", "00000000015"])
-    story_ids.append(obvious2.id)
-    questions.append(obvious2)
-    x += 1
+        obvious2 = create_test_question("obvious2", x,
+                                        ["00000000011", "00000000012", "00000000013", "00000000014", "00000000015"])
+        story_ids.append(obvious2.id)
+        questions.append(obvious2)
+        x += 1
 
-    obvious3 = create_test_question("obvious3", x,
-                                    ["00000000016", "00000000017", "00000000018", "00000000019", "00000000020"])
-    story_ids.append(obvious3.id)
-    questions.append(obvious3)
+        obvious3 = create_test_question("obvious3", x,
+                                        ["00000000016", "00000000017", "00000000018", "00000000019", "00000000020"])
+        story_ids.append(obvious3.id)
+        questions.append(obvious3)
 
     current_time = _print_log(current_time, "Generating response", render_data["worker_id"])
     resp = make_response(render_template("full-hit.html", questions=questions, worker_id=render_data["worker_id"],

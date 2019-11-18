@@ -78,16 +78,18 @@ def build_results(valid_hits, original_df):
         if assignment_id not in valid_hits:
             continue
 
-        for q in range(0, 5):
+        for q in range(0, 10):
             question_id = get_question_id(q, row)
+            if str(question_id) == "nan":
+                continue
             image_ids = get_images(q, row)
             new_row = {"AssignmentId": assignment_id,
-                       "QuestionId": question_id,
-                       'Image0': image_ids[0],
-                       'Image1': image_ids[1],
-                       'Image2': image_ids[2],
-                       'Image3': image_ids[3],
-                       'Image4': image_ids[4]}
+                       "QuestionId": str(question_id),
+                       'Image0': str(image_ids[0]),
+                       'Image1': str(image_ids[1]),
+                       'Image2': str(image_ids[2]),
+                       'Image3': str(image_ids[3]),
+                       'Image4': str(image_ids[4])}
             new_df = new_df.append(new_row, ignore_index=True)
 
     return new_df
@@ -137,11 +139,21 @@ if len(failed_both) != 0:
 
 valid_df = build_results(valid, df).sort_values(by=["QuestionId"])
 question_count = valid_df.groupby("QuestionId").size().reset_index(name='total_counts')
-unique_order = valid_df.drop_duplicates().groupby("QuestionId").size().reset_index(name='unique_counts')
+unique_order = valid_df[["QuestionId", "Image0", "Image1", "Image2", "Image3", "Image4"]].drop_duplicates().groupby(["QuestionId"]).size().reset_index(name='unique_counts')
 graph_df = pandas.merge(question_count, unique_order, how="inner", on="QuestionId")
-graph_df.set_index("QuestionId",drop=True,inplace=True)
-graph_df.plot(kind='bar')
+#graph_df.set_index("QuestionId",drop=True,inplace=True)
+
+test_questions = graph_df.loc[graph_df['QuestionId'].isin(["obvious1", "obvious2", "obvious3"])]
+graph_df = graph_df[~graph_df['QuestionId'].isin(["test", "obvious1", "obvious2", "obvious3"])]
+
+result = np.array_split(graph_df, 3)
+fig = plt.figure(dpi=300)
+test_questions.plot(x='QuestionId', kind='bar', ax = plt.gca())
 plt.show()
+
+for i in result:
+    i.plot(x='QuestionId', kind='bar', ax = plt.gca())
+    plt.show()
 
 print("Stories with less than 3 responses:")
 missing_questions = []
