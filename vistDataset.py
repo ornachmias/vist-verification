@@ -55,10 +55,10 @@ class VistDataset(object):
 
             i += 1
             self._current_story_index += 1
-            if self._current_story_index == len(keys) or i == len(keys):
+            if self._current_story_index == len(keys):
                 self._current_story_index = 0
 
-            if len(selected_stories) == num:
+            if len(selected_stories) == num or i == len(keys):
                 break
 
         return selected_stories
