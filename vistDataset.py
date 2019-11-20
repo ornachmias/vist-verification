@@ -21,6 +21,7 @@ class VistDataset(object):
         selected_images = []
 
         keys = story_ids
+        i = 0
         while True:
             story_id = keys[self._current_story_index]
             if set(self._story_in_sequence.Stories[story_id]["img_ids"]).isdisjoint(selected_images) \
@@ -28,11 +29,12 @@ class VistDataset(object):
                 selected_stories.append(story_id)
                 selected_images.extend(self._story_in_sequence.Stories[story_id]["img_ids"])
 
+            i += 1
             self._current_story_index += 1
             if self._current_story_index == len(keys):
                 self._current_story_index = 0
 
-            if len(selected_stories) == num:
+            if len(selected_stories) == num or i == len(keys):
                 break
 
         return selected_stories
@@ -43,6 +45,7 @@ class VistDataset(object):
         selected_images = []
 
         keys = list(self._story_in_sequence.Stories.keys())
+        i = 0
         while True:
             story_id = keys[self._current_story_index]
             if set(self._story_in_sequence.Stories[story_id]["img_ids"]).isdisjoint(selected_images) \
@@ -50,8 +53,9 @@ class VistDataset(object):
                 selected_stories.append(story_id)
                 selected_images.extend(self._story_in_sequence.Stories[story_id]["img_ids"])
 
+            i += 1
             self._current_story_index += 1
-            if self._current_story_index == len(keys):
+            if self._current_story_index == len(keys) or i == len(keys):
                 self._current_story_index = 0
 
             if len(selected_stories) == num:
