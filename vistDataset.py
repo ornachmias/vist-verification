@@ -15,36 +15,16 @@ class VistDataset(object):
         self._load_data()
         self._current_story_index = 0
 
-    def get_specific_story_ids(self, num, story_ids):
+    def get_random_story_ids(self, num, specific_story_ids):
         self._load_data()
         selected_stories = []
         selected_images = []
 
-        keys = story_ids
-        i = 0
-        while True:
-            story_id = keys[self._current_story_index]
-            if set(self._story_in_sequence.Stories[story_id]["img_ids"]).isdisjoint(selected_images) \
-                    and not self._hit_counter.is_max_hit(story_id):
-                selected_stories.append(story_id)
-                selected_images.extend(self._story_in_sequence.Stories[story_id]["img_ids"])
+        if specific_story_ids is None:
+            keys = list(self._story_in_sequence.Stories.keys())
+        else:
+            keys = specific_story_ids
 
-            i += 1
-            self._current_story_index += 1
-            if self._current_story_index == len(keys):
-                self._current_story_index = 0
-
-            if len(selected_stories) == num or i == len(keys):
-                break
-
-        return selected_stories
-
-    def get_random_story_ids(self, num):
-        self._load_data()
-        selected_stories = []
-        selected_images = []
-
-        keys = list(self._story_in_sequence.Stories.keys())
         i = 0
         while True:
             story_id = keys[self._current_story_index]

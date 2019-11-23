@@ -13,7 +13,7 @@ result_file_path = sys.argv[1]
 df = pandas.read_csv(result_file_path, parse_dates=["AcceptTime", "SubmitTime"])
 
 # Global Parameters
-questions_range = range(0, configurations.number_of_questions + 2)
+questions_range = range(0, 10)
 images_range = range(0, 5)
 obvious_sequence = [1, 2, 3, 4, 5]
 
@@ -59,7 +59,10 @@ def check_obvious_seq(df_row):
 
 def get_question_id(question_count, df_row):
     col_name = "question_" + str(question_count)
-    return df_row[col_name]
+    if str(df_row[col_name]).replace('.','',1).isdigit():
+        return str(int(df_row[col_name]))
+
+    return str(df_row[col_name])
 
 
 def get_images(question_count, df_row):
@@ -140,19 +143,22 @@ if len(failed_both) != 0:
 valid_df = build_results(valid, df).sort_values(by=["QuestionId"])
 question_count = valid_df.groupby("QuestionId").size().reset_index(name='total_counts')
 unique_order = valid_df[["QuestionId", "Image0", "Image1", "Image2", "Image3", "Image4"]].drop_duplicates().groupby(["QuestionId"]).size().reset_index(name='unique_counts')
+
 graph_df = pandas.merge(question_count, unique_order, how="inner", on="QuestionId")
 #graph_df.set_index("QuestionId",drop=True,inplace=True)
 
-test_questions = graph_df.loc[graph_df['QuestionId'].isin(["obvious1", "obvious2", "obvious3"])]
+#test_questions = graph_df.loc[graph_df['QuestionId'].isin(["obvious1", "obvious2", "obvious3"])]
 graph_df = graph_df[~graph_df['QuestionId'].isin(["test", "obvious1", "obvious2", "obvious3"])]
+
+print('Average unique order: ' + str(graph_df[['unique_counts']].mean()))
 
 result = np.array_split(graph_df, 3)
 fig = plt.figure(dpi=300)
-test_questions.plot(x='QuestionId', kind='bar', ax = plt.gca())
+#test_questions.plot(x='QuestionId', kind='bar', ax = plt.gca())
 plt.show()
 
 for i in result:
-    i.plot(x='QuestionId', kind='bar', ax = plt.gca())
+    i.plot(x='QuestionId', kind='bar', ax=plt.gca())
     plt.show()
 
 print("Stories with less than 3 responses:")

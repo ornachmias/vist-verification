@@ -53,8 +53,6 @@ function getQuestionIdKey(questionCount) {
     return "question_" + questionCount;
 }
 
-
-
 function allowDrop(ev) {
   ev.preventDefault();
 }
@@ -107,9 +105,9 @@ function isResultContainer(container) {
     return container.getAttribute("class") == "result-box" || container.getAttribute("class") == "result-box-completed"
 }
 
-function postResults(assignmentId, params, method='post') {
+function postResults(assignmentId, params) {
     const form = document.createElement('form');
-    form.method = method;
+    form.method = 'post';
     form.action = "https://workersandbox.mturk.com/mturk/externalSubmit" + "?assignmentId=" + assignmentId;
 
     for (const key in params) {
@@ -127,7 +125,7 @@ function postResults(assignmentId, params, method='post') {
     form.submit();
 }
 
-function postCounters(assignmentId, questionIds, method='post') {
+function postCounters(assignmentId, questionIds) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "XXX", false);
     xhr.setRequestHeader('Content-Type', 'application/json');
