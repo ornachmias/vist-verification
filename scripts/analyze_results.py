@@ -3,28 +3,30 @@ import pandas
 import numpy as np
 from pandas import DataFrame
 import matplotlib.pyplot as plt
+import re
 
 import configurations
 
-if len(sys.argv) != 2:
-    sys.exit("Invalid input. Usage should be: python3 analyze_result.py <result_file_path>")
 
-result_file_path = sys.argv[1]
-df = pandas.read_csv(result_file_path, parse_dates=["AcceptTime", "SubmitTime"])
+def get_question_numbers(columns):
+    questions = []
+    for col in columns:
+        m = re.search("question_(\d+)", col)
+        if m:
+            count = m.group(1)
+            if count not in questions:
+                questions.append(count)
 
-# Global Parameters
-questions_range = range(0, 10)
-images_range = range(0, 5)
-obvious_sequence = [1, 2, 3, 4, 5]
+    return questions
 
 
 def check_duplicate_seq(df_row):
     question_ids = []
     duplicate_question = []
-    for i in questions_range:
-        question_id = get_question_id(i, df_row)
+    for q in questions_range:
+        question_id = get_question_id(q, df_row)
         if question_id in question_ids:
-            duplicate_question.append(i)
+            duplicate_question.append(q)
             duplicate_question.append(question_ids.index(question_id))
             break
         else:
@@ -40,52 +42,51 @@ def check_duplicate_seq(df_row):
 
 
 def check_obvious_seq(df_row):
-    question_count = None
+    question = None
     for i in questions_range:
-        if get_question_id(i, df_row) == "test":
-            question_count = i
+        if get_question_id(i, df_row) == configurations.test_sequence["id"]:
+            question = i
             break
 
-    if question_count is None:
+    if question is None:
         print("Unable to find test question Id for AssignmentId=" + df_row["AssignmentId"])
         return False
 
-    images = get_images(question_count, df_row)
-    if np.array_equal(images, obvious_sequence) or np.array_equal(images[::-1], obvious_sequence):
+    images = get_images(question, df_row)
+    clean_test_sequence = [x.lstrip("0") for x in configurations.test_sequence["image_ids"]]
+
+    if np.array_equal(images, clean_test_sequence) or np.array_equal(images[::-1], clean_test_sequence):
         return True
 
     return False
 
 
-def get_question_id(question_count, df_row):
-    col_name = "question_" + str(question_count)
-    if str(df_row[col_name]).replace('.','',1).isdigit():
-        return str(int(df_row[col_name]))
-
-    return str(df_row[col_name])
+def get_question_id(question_number, df_row):
+    col_name = "question_" + question_number
+    return df_row[col_name]
 
 
-def get_images(question_count, df_row):
-    col_prefix = "question_" + str(question_count) + "_image_"
+def get_images(question_number, df_row):
+    col_prefix = "question_" + str(question_number) + "_image_"
     cols = []
     for i in images_range:
-        cols.append(col_prefix + str(i))
+        cols.append(col_prefix + i)
 
     return df_row[cols].values
 
 
 def build_results(valid_hits, original_df):
     new_df = DataFrame(columns=['AssignmentId', 'QuestionId', 'Image0', 'Image1', 'Image2', 'Image3', 'Image4'])
-    for index, row in original_df.iterrows():
-        assignment_id = row['AssignmentId']
+    for _, r in original_df.iterrows():
+        assignment_id = r['AssignmentId']
         if assignment_id not in valid_hits:
             continue
 
-        for q in range(0, 10):
-            question_id = get_question_id(q, row)
+        for q in questions_range:
+            question_id = get_question_id(q, r)
             if str(question_id) == "nan":
                 continue
-            image_ids = get_images(q, row)
+            image_ids = get_images(q, r)
             new_row = {"AssignmentId": assignment_id,
                        "QuestionId": str(question_id),
                        'Image0': str(image_ids[0]),
@@ -98,8 +99,17 @@ def build_results(valid_hits, original_df):
     return new_df
 
 
+if len(sys.argv) != 2:
+    sys.exit("Invalid input. Usage should be: python3 analyze_result.py <result_file_path>")
 
+result_file_path = sys.argv[1]
 
+# Since we are using number as mostly ids, it's better to parse everything as string
+df = pandas.read_csv(result_file_path, parse_dates=["AcceptTime", "SubmitTime"], dtype=str)
+
+# Global Parameters
+questions_range = get_question_numbers(df.columns)
+images_range = ["0", "1", "2", "3", "4"]
 
 total_submit = df.shape[0]
 print("Total HIT submissions:", total_submit)
@@ -145,29 +155,33 @@ question_count = valid_df.groupby("QuestionId").size().reset_index(name='total_c
 unique_order = valid_df[["QuestionId", "Image0", "Image1", "Image2", "Image3", "Image4"]].drop_duplicates().groupby(["QuestionId"]).size().reset_index(name='unique_counts')
 
 graph_df = pandas.merge(question_count, unique_order, how="inner", on="QuestionId")
-#graph_df.set_index("QuestionId",drop=True,inplace=True)
 
-#test_questions = graph_df.loc[graph_df['QuestionId'].isin(["obvious1", "obvious2", "obvious3"])]
-graph_df = graph_df[~graph_df['QuestionId'].isin(["test", "obvious1", "obvious2", "obvious3"])]
+obvious_seq_ids = [d["id"] for d in configurations.obvious_sequences]
+test_questions = graph_df.loc[graph_df['QuestionId'].isin(obvious_seq_ids)]
+
+obvious_seq_ids.append(configurations.test_sequence["id"])
+graph_df = graph_df[~graph_df['QuestionId'].isin(obvious_seq_ids)]
 
 print('Average unique order: ' + str(graph_df[['unique_counts']].mean()))
 
 result = np.array_split(graph_df, 3)
 fig = plt.figure(dpi=300)
-#test_questions.plot(x='QuestionId', kind='bar', ax = plt.gca())
-plt.show()
+
+if test_questions.shape[0] != 0:
+    test_questions.plot(x='QuestionId', kind='bar', ax = plt.gca())
+    plt.show()
 
 for i in result:
     i.plot(x='QuestionId', kind='bar', ax=plt.gca())
     plt.show()
 
-print("Stories with less than 3 responses:")
+print("Stories with less than " + str(configurations.max_story_submit) + " responses:")
 missing_questions = []
 for _, row in question_count.iterrows():
     q = row[0]
     c = row[1]
 
-    if c < 3:
+    if c < configurations.max_story_submit:
         missing_questions.append(q)
 
 print(missing_questions)

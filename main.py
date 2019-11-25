@@ -77,17 +77,15 @@ def generate_questions():
             question.images.append(image)
 
         questions.append(question)
-    questions.append(create_test_question("test", question_count, configurations.test_sequence_image_ids, story_ids))
-    question_count += 1
+
+    questions.append(create_test_question(configurations.test_sequence["id"], question_count,
+                                          configurations.test_sequence["image_ids"], story_ids))
+
     if configurations.use_obvious_stories:
-        questions.append(
-            create_test_question("obvious1", question_count, configurations.obvious_sequence_1_image_ids, story_ids))
-        question_count += 1
-        questions.append(
-            create_test_question("obvious2", question_count, configurations.obvious_sequence_2_image_ids, story_ids))
-        question_count += 1
-        questions.append(
-            create_test_question("obvious3", question_count, configurations.obvious_sequence_3_image_ids, story_ids))
+        for s in configurations.obvious_sequences:
+            question_count += 1
+            questions.append(create_test_question(s["id"], question_count, s["image_ids"], story_ids))
+
     return questions
 
 
