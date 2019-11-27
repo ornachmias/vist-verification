@@ -56,7 +56,7 @@ class VistDataset(object):
 
         description = ""
         for s in sents:
-            description += s["original_text"]
+            description += " " + s["original_text"]
 
         return description
 

@@ -79,12 +79,12 @@ def generate_questions():
         questions.append(question)
 
     questions.append(create_test_question(configurations.test_sequence["id"], question_count,
-                                          configurations.test_sequence["image_ids"], story_ids))
+                                          configurations.test_sequence["image_ids"], story_ids, configurations.test_sequence["story"]))
 
     if configurations.use_obvious_stories:
         for s in configurations.obvious_sequences:
             question_count += 1
-            questions.append(create_test_question(s["id"], question_count, s["image_ids"], story_ids))
+            questions.append(create_test_question(s["id"], question_count, s["image_ids"], story_ids, s["story"]))
 
     return questions
 
@@ -112,11 +112,15 @@ def generate_uui():
     return str(uuid.uuid4())
 
 
-def create_test_question(question_id, question_count, image_ids, story_ids):
+def create_test_question(question_id, question_count, image_ids, story_ids, story):
     question = type('Question', (object,), {})()
     question.id = question_id
     story_ids.append(question.id)
     question.uuid = generate_uui()
+
+    if configurations.show_original_description:
+        question.description = story
+
     question.count = question_count
     question.images = []
     image_count = 1
