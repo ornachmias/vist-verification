@@ -1,4 +1,5 @@
 import json
+import os
 import random
 import uuid
 
@@ -162,6 +163,9 @@ def get_results():
     valid_df, graph_paths = analyze_results.analyze(result_id)
     graphs = []
     for g in graph_paths:
+        if not os.path.exists(g):
+            continue
+            
         in_file = open(g, "rb")
         data = in_file.read()
         in_file.close()
