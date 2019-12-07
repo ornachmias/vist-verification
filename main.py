@@ -141,7 +141,8 @@ def get_sequences():
             image.id = i
             image.uuid = generate_uui()
             image_data = data_loader.load_image(i)
-            image.content = base64.b64encode(image_data).decode('ascii')
+            if image_data is not None:
+                image.content = base64.b64encode(image_data).decode('ascii')
             question.images.append(image)
 
         questions.append(question)
