@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+body {
+  font-family: Arial;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+form.search-form input[type=text] {
+  padding: 10px;
+  font-size: 17px;
+  border: 1px solid grey;
+  float: left;
+  width: 80%;
+  background: #f1f1f1;
+}
+
+form.search-form button {
+  float: left;
+  width: 20%;
+  padding: 10px;
+  background: #2196F3;
+  color: white;
+  font-size: 17px;
+  border: 1px solid grey;
+  border-left: none;
+  cursor: pointer;
+}
+
+form.search-form button:hover {
+  background: #0b7dda;
+}
+
+form.search-form::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.question-description {
+    float: left;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.image-sequence {
+    list-style-type: none;
+}
+
+.single-question {
+    float: left;
+    overflow:hidden;
+    width:100%;
+}
+
+.single-question img {
+    float:left;
+    width:100%;
+}
+
+ul {
+    width: 100%;
+    display: block;
+    float: left;
+}
+
+li {
+    width: 18%;
+    float: left;
+    height: auto;
+    padding: 5px;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+<form class="search-form" style="margin:auto;max-width:300px">
+  <input type="text" placeholder="Search.." name="search">
+  <button id="submit-button" onclick="submit()"><i class="fa fa-search"></i></button>
+</form>
+
+<div class="results">
+    {% for question in questions %}
+    <h2>Story {{question.id}}</h2>
+        <div class="question-description">{{question.description}}</div>
+        <div>
+            <div questionid="{{question.id}}" quuid="{{question.uuid}}" class="single-question">
+                <ul class="image-sequence">
+                    {% for image in question.images %}
+                    <li>
+                        <img iuuid="{{image.uuid}}" imageid="{{image.id}}" quuid="{{question.uuid}}" questionid="{{question.id}}" src="data:image/jpg;base64,{{image.content | safe}}"/>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>

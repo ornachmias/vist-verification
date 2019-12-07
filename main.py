@@ -108,6 +108,45 @@ def finish_hit():
     return resp
 
 
+@app.route('/manage/sequences', methods=['GET'])
+def get_sequences():
+    sequences_ids_str = request.args.get("search")
+    resp = make_response(render_template("display-sequences.html"))
+    resp.headers['ContentType'] = "text/html"
+
+    if sequences_ids_str is None or sequences_ids_str == "":
+        return resp
+
+    sequences_ids = sequences_ids_str.split(",")
+
+    if len(sequences_ids_str) < 1:
+        return resp
+
+    questions = []
+    for story_id in sequences_ids:
+        story_id = story_id.strip()
+        question = type('Question', (object,), {})()
+        question.id = story_id
+        question.uuid = generate_uui()
+        question.description = vist_dataset.get_story_description(story_id)
+
+        question.images = []
+        image_ids = vist_dataset.get_images_ids(question.id)
+
+        for i in image_ids:
+            image = type('Image', (object,), {})()
+            image.id = i
+            image.uuid = generate_uui()
+            image_data = data_loader.load_image(i)
+            image.content = base64.b64encode(image_data).decode('ascii')
+            question.images.append(image)
+
+        questions.append(question)
+
+    resp = make_response(render_template("display-sequences.html", questions=questions))
+    resp.headers['ContentType'] = "text/html"
+    return resp
+
 def generate_uui():
     return str(uuid.uuid4())
 
