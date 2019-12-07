@@ -5,6 +5,7 @@ import uuid
 from flask import Flask, render_template, make_response, jsonify, request, send_from_directory
 
 import configurations
+from analyzeResults import AnalyzeResults
 from dataLoader import DataLoader
 from hitCounter import HitCounter
 
@@ -16,7 +17,7 @@ app = Flask(__name__)
 data_loader = DataLoader(root_path=configurations.root_data)
 hit_counter = HitCounter(root_path=configurations.root_data, story_max_hits=configurations.max_story_submit)
 vist_dataset = VistDataset(root_path=configurations.root_data, hit_counter=hit_counter, samples_num=configurations.samples)
-
+analyze_results = AnalyzeResults(data_root=configurations.root_data, data_loader=data_loader, vist_dataset=vist_dataset)
 
 @app.route('/.well-known/acme-challenge/<path:filename>', methods=['GET', 'POST'])
 def serve_static_files(filename):
@@ -146,6 +147,30 @@ def get_sequences():
     resp = make_response(render_template("display-sequences.html", questions=questions))
     resp.headers['ContentType'] = "text/html"
     return resp
+
+
+@app.route('/manage/results', methods=['GET'])
+def get_results():
+    result_ids = analyze_results.get_results_ids()
+    result_id = request.args.get("result_id")
+    resp = make_response(render_template("display-results.html", result_ids=result_ids))
+    resp.headers['ContentType'] = "text/html"
+
+    if result_id is None:
+        return resp
+
+    valid_df, graph_paths = analyze_results.analyze(result_id)
+    graphs = []
+    for g in graph_paths:
+        in_file = open(g, "rb")
+        data = in_file.read()
+        in_file.close()
+        graphs.append(base64.b64encode(data).decode('ascii'))
+    resp = make_response(render_template("display-results.html", result_ids=result_ids, graphs=graphs,
+                                         valid_df=valid_df.to_html(classes='data', header="true")))
+    resp.headers['ContentType'] = "text/html"
+    return resp
+
 
 def generate_uui():
     return str(uuid.uuid4())

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        ul.timeline li
+{
+    position: relative;
+   height: 3em;
+    color: #888;
+}
+
+ul.timeline li:before
+{
+    content: "";
+    display: inline-block;
+    height: 3em;
+    width: 1px;
+    background: #aaaa;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    left: -11px;
+    top: -0.4em;
+    z-index: -1;
+}
+
+ul.timeline:before
+{
+    content: "●";
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    left: -1em;
+    top: 0.1em;
+    color: #aaa;
+}
+
+ul.timeline:after
+{
+    content: "●";
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    left: -1em;
+    top: -1em;
+    color: #aaa;
+}
+    </style>
+    <title>Results Management</title>
+</head>
+<body>
+    <ul class="timeline">
+        {% for result_id in result_ids %}
+        <li><span><a class="badge badge-primary badge-pill font-weight-normal" href="/manage/results?result_id={{result_id}}">{{result_id}}</a></span></li>
+        {% endfor %}
+    </ul>
+
+    {% if graphs is defined %}
+        <h2>Graphs</h2>
+        <ul>
+            {% for graph in graphs %}
+            <li>
+                <img src="data:image/jpg;base64,{{graph | safe}}"/>
+            </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if valid_df is defined %}
+        <h2>Valid Data</h2>
+        {{ valid_df | safe }}
+    {% endif %}
+</body>
+</html>

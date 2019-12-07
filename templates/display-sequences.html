@@ -95,6 +95,7 @@ li {
                 <ul class="image-sequence">
                     {% for image in question.images %}
                     <li>
+                        {{image.id}}
                         <img iuuid="{{image.uuid}}" imageid="{{image.id}}" quuid="{{question.uuid}}" questionid="{{question.id}}" src="data:image/jpg;base64,{{image.content | safe}}"/>
                     </li>
                     {% endfor %}
