@@ -205,6 +205,7 @@ class AnalyzeResults(object):
 
     def analyze(self, result_id):
         result_file_path = os.path.join(self._results_dir, result_id) + self._result_file_ext
+        print("Analyzing file={}".format(result_file_path))
         df = pandas.read_csv(result_file_path, parse_dates=["AcceptTime", "SubmitTime"], dtype=str)
         questions_range = self._get_question_numbers(df.columns)
         total_submit = df.shape[0]
