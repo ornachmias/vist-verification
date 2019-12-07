@@ -17,6 +17,8 @@ class DataLoader(object):
     def load_image(self, image_id):
         current_time = time.time()
         image_path = self._find_file(image_id)
+        if image_path is None:
+            return None
         print("Finding the file took", str(time.time() - current_time))
         current_time = time.time()
         in_file = open(image_path, "rb")

@@ -75,7 +75,8 @@ def generate_questions():
             image.count = image_count
             image_count += 1
             image_data = data_loader.load_image(i)
-            image.content = base64.b64encode(image_data).decode('ascii')
+            if image_data is not None:
+                image.content = base64.b64encode(image_data).decode('ascii')
             question.images.append(image)
 
         questions.append(question)
@@ -165,7 +166,7 @@ def get_results():
     for g in graph_paths:
         if not os.path.exists(g):
             continue
-            
+
         in_file = open(g, "rb")
         data = in_file.read()
         in_file.close()
