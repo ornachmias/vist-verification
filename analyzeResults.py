@@ -206,6 +206,17 @@ class AnalyzeResults(object):
 
         return test_graph_path, general_graph_paths
 
+    def get_histogram(self, result_id, question_id):
+        pickle_path = os.path.join(self._get_graphs_dir_path(result_id, "hist"), "hist.pickle")
+
+        if os.path.exists(pickle_path):
+            with open(pickle_path, 'rb') as handle:
+                hists = pickle.load(handle)
+        else:
+            _, _, hists = self.analyze(result_id)
+
+        return hists[question_id]
+
     def analyze(self, result_id):
         result_file_path = os.path.join(self._results_path, result_id) + self._result_file_ext
         print("Analyzing file={}".format(result_file_path))

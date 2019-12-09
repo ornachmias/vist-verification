@@ -89,7 +89,7 @@ img.graph {
         <ul class="images-list-3col">
             {% for hist in hists %}
             <li>
-                <img class="graph" src="data:image/jpg;base64,{{hist | safe}}"/>
+                <a  href="/manage/results/{{hist[0]}}?result_id={{result_id}}"><img class="graph" src="data:image/jpg;base64,{{hist[1] | safe}}"/></a>
             </li>
             {% endfor %}
         </ul>

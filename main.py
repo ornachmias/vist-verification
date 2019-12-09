@@ -10,6 +10,7 @@ import configurations
 from analyzeResults import AnalyzeResults
 from dataLoader import DataLoader
 from hitCounter import HitCounter
+import numpy as np
 
 from vistDataset import VistDataset
 import base64
@@ -186,11 +187,52 @@ def get_results():
         in_file = open(hists[k]["fig_path"], "rb")
         data = in_file.read()
         in_file.close()
-        hists_images.append(base64.b64encode(data).decode('ascii'))
+        hists_images.append([k, base64.b64encode(data).decode('ascii')])
 
-    resp = make_response(render_template("display-results.html", result_ids=result_ids, graphs=graphs, hists=hists_images))
+    resp = make_response(render_template("display-results.html", result_ids=result_ids, graphs=graphs, hists=hists_images, result_id=result_id))
     resp.headers['ContentType'] = "text/html"
     return resp
+
+
+@app.route('/manage/results/<question_id>', methods=['GET'])
+def get_hist(question_id):
+    result_id = request.args.get("result_id")
+    hist = analyze_results.get_histogram(result_id, question_id)
+    values = np.asarray(hist["values"])
+    v_i = np.argsort(np.multiply(-1, values))
+    values = values[v_i]
+    labels = np.asarray(hist["labels"])[v_i]
+    fig_path = hist["fig_path"]
+
+    in_file = open(fig_path, "rb")
+    data = in_file.read()
+    in_file.close()
+    fig_data = base64.b64encode(data).decode('ascii')
+
+    sequences = []
+    for i in range(len(values)):
+        sequence = type('Sequence', (object,), {})()
+        sequence.result_count = values[i]
+        sequence.image_order = labels[i]
+        sequence.images = []
+
+        for image_id in labels[i]:
+            image = type('Image', (object,), {})()
+            image.id = image_id
+            image_data = data_loader.load_image(image_id)
+            if image_data is not None:
+                image.content = base64.b64encode(image_data).decode('ascii')
+
+            sequence.images.append(image)
+
+        sequences.append(sequence)
+
+    t = vist_dataset.get_story_description(question_id)
+    resp = make_response(
+        render_template("display-histogram.html", fig_data=fig_data, sequences=sequences, question_id=question_id, story_text=t))
+    resp.headers['ContentType'] = "text/html"
+    return resp
+
 
 
 def generate_uui():

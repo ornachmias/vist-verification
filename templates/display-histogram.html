@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Story Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='full-hit.css') }}">
+    <style>
+        body {font-family: Arial;}
+    </style>
+</head>
+<body>
+<h1>Story Id {{question_id}}</h1>
+<img class="graph" src="data:image/jpg;base64,{{fig_data | safe}}"/>
+<p>{{story_text}}</p>
+{% for sequence in sequences %}
+<div>
+    <div class="single-question">
+        <h2>{{sequence.result_count}} answers</h2>
+        <ul class="image-sequence">
+            {% for image in sequence.images %}
+            <li>
+                <img src="data:image/jpg;base64,{{image.content | safe}}"/>
+                {{image.id}}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endfor %}
+</body>
+</html>
