@@ -48,6 +48,21 @@ ul.timeline:after
     top: -1em;
     color: #aaa;
 }
+
+ul.images-list-2col {
+    columns: 2;
+    list-style-type:none;
+}
+
+ul.images-list-3col {
+    columns: 3;
+    list-style-type:none;
+}
+
+img.graph {
+    height: auto;
+    width: 350px;
+}
     </style>
     <title>Results Management</title>
 </head>
@@ -60,18 +75,24 @@ ul.timeline:after
 
     {% if graphs is defined %}
         <h2>Graphs</h2>
-        <ul>
+        <ul class="images-list-2col">
             {% for graph in graphs %}
             <li>
-                <img src="data:image/jpg;base64,{{graph | safe}}"/>
+                <img class="graph" src="data:image/jpg;base64,{{graph | safe}}"/>
             </li>
             {% endfor %}
         </ul>
     {% endif %}
 
-    {% if valid_df is defined %}
-        <h2>Valid Data</h2>
-        {{ valid_df | safe }}
+    {% if hists is defined %}
+        <h2>Histograms</h2>
+        <ul class="images-list-3col">
+            {% for hist in hists %}
+            <li>
+                <img class="graph" src="data:image/jpg;base64,{{hist | safe}}"/>
+            </li>
+            {% endfor %}
+        </ul>
     {% endif %}
 </body>
 </html>

@@ -4,6 +4,7 @@ import random
 import uuid
 
 from flask import Flask, render_template, make_response, jsonify, request, send_from_directory
+from setuptools.command.test import test
 
 import configurations
 from analyzeResults import AnalyzeResults
@@ -162,9 +163,13 @@ def get_results():
     if result_id is None:
         return resp
 
-    valid_df, graph_paths = analyze_results.analyze(result_id)
+    test_path, general_paths, hists = analyze_results.analyze(result_id)
     graphs = []
-    for g in graph_paths:
+
+    if test_path is not None:
+        general_paths.append(test_path)
+
+    for g in general_paths:
         if not os.path.exists(g):
             continue
 
@@ -172,8 +177,18 @@ def get_results():
         data = in_file.read()
         in_file.close()
         graphs.append(base64.b64encode(data).decode('ascii'))
-    resp = make_response(render_template("display-results.html", result_ids=result_ids, graphs=graphs,
-                                         valid_df=valid_df.to_html(classes='data', header="true")))
+
+    hists_images = []
+    for k in hists:
+        if not os.path.exists(hists[k]["fig_path"]):
+            continue
+
+        in_file = open(hists[k]["fig_path"], "rb")
+        data = in_file.read()
+        in_file.close()
+        hists_images.append(base64.b64encode(data).decode('ascii'))
+
+    resp = make_response(render_template("display-results.html", result_ids=result_ids, graphs=graphs, hists=hists_images))
     resp.headers['ContentType'] = "text/html"
     return resp
 

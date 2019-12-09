@@ -1,5 +1,6 @@
 import math
 import os
+import pickle
 import re
 
 import pandas
@@ -11,21 +12,35 @@ import numpy as np
 import configurations
 
 
+# noinspection DuplicatedCode
 class AnalyzeResults(object):
     def __init__(self, data_root, data_loader, vist_dataset):
         self._data_root = data_root
         self._data_loader = data_loader
         self._vist_dataset = vist_dataset
-        self._results_dir = os.path.join(data_root, "results")
+        self._results_path = os.path.join(data_root, "results")
         self._result_file_ext = ".csv"
         self.images_range = ["0", "1", "2", "3", "4"]
+        self._cluster_score_threshold = 0.5
 
     def get_results_ids(self):
-        result_files = [f for f in os.listdir(self._results_dir)
-                        if os.path.isfile(os.path.join(self._results_dir, f)) and f.endswith(self._result_file_ext)]
+        result_files = [f for f in os.listdir(self._results_path)
+                        if os.path.isfile(os.path.join(self._results_path, f)) and f.endswith(self._result_file_ext)]
 
         result_files = [f[:-len(self._result_file_ext)] for f in result_files]
         return result_files
+
+    def _get_graphs_dir_path(self, result_id, graph_type):
+        return os.path.join(self._results_path, result_id, graph_type)
+
+    def _save_graph(self, result_id, graph_type, fig, fig_name):
+        dir = self._get_graphs_dir_path(result_id, graph_type)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+        path = os.path.join(dir, fig_name + ".png")
+        fig.savefig(path)
+        return path
 
     def _get_question_numbers(self, columns):
         questions = []
@@ -116,10 +131,13 @@ class AnalyzeResults(object):
         max_cluster = np.max(x)
         return np.divide(x, max_cluster)
 
-    def _get_graph_path(self, result_id, graph_type, number_of_results):
-        return os.path.join(self._results_dir, "{}_{}_{}.png".format(result_id, graph_type, number_of_results))
+    def _generate_hist(self, valid_df, result_id):
+        pickle_path = os.path.join(self._get_graphs_dir_path(result_id, "hist"), "hist.pickle")
 
-    def _get_hist(self, valid_df):
+        if os.path.exists(pickle_path):
+            with open(pickle_path, 'rb') as handle:
+                return pickle.load(handle)
+
         unique_order_hist = valid_df[["QuestionId", "Image0", "Image1", "Image2", "Image3", "Image4"]]
         unique_order_hist = unique_order_hist.groupby(unique_order_hist.columns.tolist(), as_index=False).size()
 
@@ -127,33 +145,37 @@ class AnalyzeResults(object):
         for index in unique_order_hist.index:
             question_id = index[0]
             if question_id not in histogram_values:
-                histogram_values[question_id] = []
+                histogram_values[question_id] = {"values": [], "labels": []}
 
-            histogram_values[question_id].append(unique_order_hist[index])
+            histogram_values[question_id]["values"].append(unique_order_hist[index])
+            histogram_values[question_id]["labels"].append(index[1:])
 
-        col_num = 5
-        rows_num = math.ceil(len(histogram_values) / col_num)
-        fig = plt.figure(0, figsize=(18, 18))
-        gs = gridspec.GridSpec(rows_num, col_num)
         data_keys = list(histogram_values.keys())
+        plt.tight_layout()
+        for k in data_keys:
+            fig = plt.figure()
+            v = np.asarray(histogram_values[k]["values"])
+            v_i = np.argsort(np.multiply(-1, v))
+            v = v[v_i]
+            custer_scores = self._cluster_score(v)
+            clusters_colors = np.asarray(['b'] * len(v))
+            clusters_colors[custer_scores >= self._cluster_score_threshold] = 'r'
+            plt.bar(np.arange(len(v)), v, align='center', color=clusters_colors)
+            plt.xticks(np.arange(len(v)), np.arange(len(v)))
+            plt.title("Story Id: " + str(k))
+            if "test" in k or "obv" in k:
+                plt.ylim(0, 80)
+            else:
+                plt.ylim(0, 10)
 
-        i = 0
-        for r in range(rows_num):
-            for c in range(col_num):
-                if i >= len(data_keys):
-                    break
-                ax = fig.add_subplot(gs[r, c])
-                v = histogram_values[data_keys[i]]
-                custer_scores = self._cluster_score(v)
-                clusters_colors = np.asarray(['b'] * len(v))
-                clusters_colors[custer_scores >= 0.5] = 'r'
-                ax.bar(np.arange(len(v)), v, align='center', alpha=0.5, color=clusters_colors)
-                ax.title.set_text(str(data_keys[i]))
-                i += 1
+            histogram_values[k]["fig_path"] = self._save_graph(result_id, "hist", fig, k)
 
-        return fig
+        with open(pickle_path, 'wb') as handle:
+            pickle.dump(histogram_values, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def _get_general_graph(self, valid_df):
+        return histogram_values
+
+    def _generate_general_graph(self, valid_df, result_id):
         question_count = valid_df.groupby("QuestionId").size().reset_index(name='total_counts')
         unique_order = valid_df[
             ["QuestionId", "Image0", "Image1", "Image2", "Image3", "Image4"]].drop_duplicates().groupby(
@@ -166,49 +188,29 @@ class AnalyzeResults(object):
         obvious_seq_ids.append(configurations.test_sequence["id"])
         graph_df = graph_df[~graph_df['QuestionId'].isin(obvious_seq_ids)]
 
-        result = np.array_split(graph_df, 3)
-        figure_index = 1
-        plt.figure(figure_index, dpi=200)
+        plt.tight_layout()
 
-        test_plt = None
+        test_graph_path = None
         if test_questions.shape[0] != 0:
+            plt.figure()
             test_plt = test_questions.plot(x='QuestionId', kind='bar', ax=plt.gca())
+            test_graph_path = self._save_graph(result_id, "general", test_plt.figure, "test")
 
-        general_plt = []
-        for i in result:
-            figure_index += 1
-            plt.figure(figure_index, dpi=200)
-            general_plt.append(i.plot(x='QuestionId', kind='bar', ax=plt.gca()))
+        batch_size = 10
+        batches_count = len(graph_df) // batch_size + 1
+        general_graph_paths = []
+        for i in range(batches_count):
+            plt.figure()
+            general_plt = graph_df[i * batch_size:(i + 1) * batch_size].plot(x='QuestionId', kind='bar', ax=plt.gca())
+            general_graph_paths.append(self._save_graph(result_id, "general", general_plt.figure, "general_" + str(i)))
 
-        return test_plt, general_plt
-
-    def _write_graphs(self, result_id, total_submit, valid_df):
-        hist_path = self._get_graph_path(result_id, "hist", total_submit)
-        if not os.path.exists(hist_path):
-            hist = self._get_hist(valid_df)
-            hist.savefig(hist_path)
-
-        test_path = self._get_graph_path(result_id, "test", total_submit)
-        general1_path = self._get_graph_path(result_id, "general1", total_submit)
-        general2_path = self._get_graph_path(result_id, "general2", total_submit)
-        general3_path = self._get_graph_path(result_id, "general3", total_submit)
-        if not os.path.exists(test_path) or not general1_path or not general2_path or not general3_path:
-            test_plt, general_plt = self._get_general_graph(valid_df)
-
-            if test_plt is not None:
-                test_plt.figure.savefig(test_path)
-            general_plt[0].figure.savefig(general1_path)
-            general_plt[1].figure.savefig(general2_path)
-            general_plt[2].figure.savefig(general3_path)
-
-        return [hist_path, test_path, general1_path, general2_path, general3_path]
+        return test_graph_path, general_graph_paths
 
     def analyze(self, result_id):
-        result_file_path = os.path.join(self._results_dir, result_id) + self._result_file_ext
+        result_file_path = os.path.join(self._results_path, result_id) + self._result_file_ext
         print("Analyzing file={}".format(result_file_path))
         df = pandas.read_csv(result_file_path, parse_dates=["AcceptTime", "SubmitTime"], dtype=str)
         questions_range = self._get_question_numbers(df.columns)
-        total_submit = df.shape[0]
 
         dup_invalid = []
         test_invalid = []
@@ -228,9 +230,10 @@ class AnalyzeResults(object):
                 valid.append(row["AssignmentId"])
 
         valid_df = self._build_results(questions_range, valid, df).sort_values(by=["QuestionId"])
-        graphs_paths = self._write_graphs(result_id, total_submit, valid_df)
+        hists = self._generate_hist(valid_df, result_id)
+        test_path, general_paths = self._generate_general_graph(valid_df, result_id)
 
-        return valid_df, graphs_paths
+        return test_path, general_paths, hists
 
 
 

@@ -1,9 +1,11 @@
+import math
 import sys
 import pandas
 import numpy as np
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 import re
+from matplotlib import gridspec
 
 import configurations
 
@@ -53,7 +55,7 @@ def check_obvious_seq(df_row):
         return False
 
     images = get_images(question, df_row)
-    clean_test_sequence = [x.lstrip("0") for x in configurations.test_sequence["image_ids"]]
+    clean_test_sequence = configurations.test_sequence["image_ids"]
 
     if np.array_equal(images, clean_test_sequence) or np.array_equal(images[::-1], clean_test_sequence):
         return True
@@ -97,6 +99,11 @@ def build_results(valid_hits, original_df):
             new_df = new_df.append(new_row, ignore_index=True)
 
     return new_df
+
+
+def cluster_score(x):
+    max_cluster = np.max(x)
+    return np.divide(x, max_cluster)
 
 
 if len(sys.argv) != 2:
@@ -154,6 +161,39 @@ valid_df = build_results(valid, df).sort_values(by=["QuestionId"])
 question_count = valid_df.groupby("QuestionId").size().reset_index(name='total_counts')
 unique_order = valid_df[["QuestionId", "Image0", "Image1", "Image2", "Image3", "Image4"]].drop_duplicates().groupby(["QuestionId"]).size().reset_index(name='unique_counts')
 
+unique_order_hist = valid_df[["QuestionId", "Image0", "Image1", "Image2", "Image3", "Image4"]]
+unique_order_hist = unique_order_hist.groupby(unique_order_hist.columns.tolist(), as_index=False).size()
+
+histogram_values = {}
+for index in unique_order_hist.index:
+    question_id = index[0]
+    if question_id not in histogram_values:
+        histogram_values[question_id] = []
+
+    histogram_values[question_id].append(unique_order_hist[index])
+
+col_num = 5
+rows_num = math.ceil(len(histogram_values) / col_num)
+fig = plt.figure(figsize=(18, 18))
+gs = gridspec.GridSpec(rows_num, col_num)
+data_keys = list(histogram_values.keys())
+
+i = 0
+for r in range(rows_num):
+    for c in range(col_num):
+        if i >= len(data_keys):
+            break
+        ax = fig.add_subplot(gs[r, c])
+        v = histogram_values[data_keys[i]]
+        custer_scores = cluster_score(v)
+        clusters_colors = np.asarray(['b'] * len(v))
+        clusters_colors[custer_scores >= 0.5] = 'r'
+        ax.bar(np.arange(len(v)), v, align='center', alpha=0.5, color=clusters_colors)
+        ax.title.set_text(str(data_keys[i]))
+        i += 1
+
+plt.show()
+
 graph_df = pandas.merge(question_count, unique_order, how="inner", on="QuestionId")
 
 obvious_seq_ids = [d["id"] for d in configurations.obvious_sequences]
@@ -162,7 +202,8 @@ test_questions = graph_df.loc[graph_df['QuestionId'].isin(obvious_seq_ids)]
 obvious_seq_ids.append(configurations.test_sequence["id"])
 graph_df = graph_df[~graph_df['QuestionId'].isin(obvious_seq_ids)]
 
-print('Average unique order: ' + str(graph_df[['unique_counts']].mean()))
+print('Average total order: ' + str(graph_df[['total_counts']].mean()[0]))
+print('Average unique order: ' + str(graph_df[['unique_counts']].mean()[0]))
 
 result = np.array_split(graph_df, 3)
 fig = plt.figure(dpi=300)
