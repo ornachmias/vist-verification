@@ -201,8 +201,11 @@ class AnalyzeResults(object):
         general_graph_paths = []
         for i in range(batches_count):
             plt.figure()
-            general_plt = graph_df[i * batch_size:(i + 1) * batch_size].plot(x='QuestionId', kind='bar', ax=plt.gca())
-            general_graph_paths.append(self._save_graph(result_id, "general", general_plt.figure, "general_" + str(i)))
+            if not graph_df[i * batch_size:(i + 1) * batch_size].empty:
+                general_plt = graph_df[i * batch_size:(i + 1) * batch_size].plot(x='QuestionId', kind='bar', ax=plt.gca())
+                general_graph_paths.append(self._save_graph(result_id, "general", general_plt.figure, "general_" + str(i)))
+            else:
+                print("Couldn't calculate general graph for batch {}".format(i))
 
         return test_graph_path, general_graph_paths
 
