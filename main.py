@@ -227,7 +227,17 @@ def get_hist(question_id):
 
         sequences.append(sequence)
 
-    t = vist_dataset.get_story_description(question_id)
+    t = None
+    for x in configurations.obvious_sequences:
+        if x["id"] == question_id:
+            t = x["story"]
+
+    if question_id == configurations.test_sequence["id"]:
+        t = configurations.test_sequence["story"]
+
+    if t is None:
+        t = vist_dataset.get_story_description(question_id)
+
     resp = make_response(
         render_template("display-histogram.html", fig_data=fig_data, sequences=sequences, question_id=question_id, story_text=t))
     resp.headers['ContentType'] = "text/html"
