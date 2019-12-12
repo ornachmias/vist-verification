@@ -39,7 +39,9 @@ class AnalyzeResults(object):
             os.makedirs(dir)
 
         path = os.path.join(dir, fig_name + ".png")
-        fig.savefig(path)
+        if not os.path.exists(path):
+            fig.savefig(path)
+
         return path
 
     def _get_question_numbers(self, columns):
@@ -176,6 +178,19 @@ class AnalyzeResults(object):
         return histogram_values
 
     def _generate_general_graph(self, valid_df, result_id):
+        general_pickle_path = os.path.join(self._get_graphs_dir_path(result_id, "general"), "general.pickle")
+        test_pickle_path = os.path.join(self._get_graphs_dir_path(result_id, "general"), "test.pickle")
+        general_graph_paths = None
+        test_graph_path = None
+
+        if os.path.exists(general_pickle_path):
+            with open(general_pickle_path, 'rb') as handle:
+                general_graph_paths = pickle.load(handle)
+
+        if os.path.exists(test_pickle_path):
+            with open(test_pickle_path, 'rb') as handle:
+                test_graph_path = pickle.load(handle)
+
         question_count = valid_df.groupby("QuestionId").size().reset_index(name='total_counts')
         unique_order = valid_df[
             ["QuestionId", "Image0", "Image1", "Image2", "Image3", "Image4"]].drop_duplicates().groupby(
@@ -190,22 +205,27 @@ class AnalyzeResults(object):
 
         plt.tight_layout()
 
-        test_graph_path = None
-        if test_questions.shape[0] != 0:
+        if test_questions.shape[0] != 0 and test_graph_path is None:
             plt.figure()
             test_plt = test_questions.plot(x='QuestionId', kind='bar', ax=plt.gca())
             test_graph_path = self._save_graph(result_id, "general", test_plt.figure, "test")
+            with open(test_pickle_path, 'wb') as handle:
+                pickle.dump(test_graph_path, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        batch_size = 10
-        batches_count = len(graph_df) // batch_size + 1
-        general_graph_paths = []
-        for i in range(batches_count):
-            plt.figure()
-            if not graph_df[i * batch_size:(i + 1) * batch_size].empty:
-                general_plt = graph_df[i * batch_size:(i + 1) * batch_size].plot(x='QuestionId', kind='bar', ax=plt.gca())
-                general_graph_paths.append(self._save_graph(result_id, "general", general_plt.figure, "general_" + str(i)))
-            else:
-                print("Couldn't calculate general graph for batch {}".format(i))
+        if general_graph_paths is None:
+            batch_size = 10
+            batches_count = len(graph_df) // batch_size + 1
+            general_graph_paths = []
+            for i in range(batches_count):
+                plt.figure()
+                if not graph_df[i * batch_size:(i + 1) * batch_size].empty:
+                    general_plt = graph_df[i * batch_size:(i + 1) * batch_size].plot(x='QuestionId', kind='bar', ax=plt.gca())
+                    general_graph_paths.append(self._save_graph(result_id, "general", general_plt.figure, "general_" + str(i)))
+                else:
+                    print("Couldn't calculate general graph for batch {}".format(i))
+
+            with open(general_pickle_path, 'wb') as handle:
+                pickle.dump(general_graph_paths, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         return test_graph_path, general_graph_paths
 
