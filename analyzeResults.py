@@ -88,8 +88,12 @@ class AnalyzeResults(object):
 
         images = self._get_images(question, df_row)
         clean_test_sequence = configurations.test_sequence["image_ids"]
+        desired_array = [str(int(numeric_string)) for numeric_string in clean_test_sequence]
 
         if np.array_equal(images, clean_test_sequence) or np.array_equal(images[::-1], clean_test_sequence):
+            return True
+
+        if np.array_equal(images, desired_array) or np.array_equal(images[::-1], desired_array):
             return True
 
         return False
@@ -135,6 +139,9 @@ class AnalyzeResults(object):
 
     def _generate_hist(self, valid_df, result_id):
         pickle_path = os.path.join(self._get_graphs_dir_path(result_id, "hist"), "hist.pickle")
+
+        if not os.path.exists(os.path.join(self._get_graphs_dir_path(result_id, "hist"))):
+            os.makedirs(self._get_graphs_dir_path(result_id, "hist"))
 
         if os.path.exists(pickle_path):
             with open(pickle_path, 'rb') as handle:
@@ -182,6 +189,9 @@ class AnalyzeResults(object):
         test_pickle_path = os.path.join(self._get_graphs_dir_path(result_id, "general"), "test.pickle")
         general_graph_paths = None
         test_graph_path = None
+
+        if not os.path.exists(os.path.join(self._get_graphs_dir_path(result_id, "general"))):
+            os.makedirs(self._get_graphs_dir_path(result_id, "general"))
 
         if os.path.exists(general_pickle_path):
             with open(general_pickle_path, 'rb') as handle:
