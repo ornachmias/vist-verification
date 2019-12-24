@@ -1,14 +1,12 @@
-import math
 import os
 import pickle
 import re
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas
 from pandas import DataFrame
-import matplotlib.pyplot as plt
-from matplotlib import gridspec
 
-import numpy as np
 import configurations
 
 
@@ -160,6 +158,8 @@ class AnalyzeResults(object):
             histogram_values[question_id]["labels"].append(index[1:])
 
         data_keys = list(histogram_values.keys())
+        x_values_length = max([len(histogram_values[x]['values']) for x in histogram_values])
+
         plt.tight_layout()
         for k in data_keys:
             fig = plt.figure()
@@ -169,8 +169,9 @@ class AnalyzeResults(object):
             custer_scores = self._cluster_score(v)
             clusters_colors = np.asarray(['b'] * len(v))
             clusters_colors[custer_scores >= self._cluster_score_threshold] = 'r'
-            plt.bar(np.arange(len(v)), v, align='center', color=clusters_colors)
-            plt.xticks(np.arange(len(v)), np.arange(len(v)))
+            dummy_extension = np.zeros(x_values_length - len(v))
+            plt.bar(np.arange(x_values_length), np.append(v, dummy_extension), align='center', color=clusters_colors)
+            plt.xticks(np.arange(x_values_length))
             plt.title("Story Id: " + str(k))
             if "test" in k or "obv" in k:
                 plt.ylim(0, 80)

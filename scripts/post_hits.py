@@ -21,11 +21,11 @@ new_hit = mturk.create_hit(
     Description='Order image sequences to tell a story.',
     Keywords='question, answer, research, images, sequences',
     Reward='0.12',
-    MaxAssignments=50,
+    MaxAssignments=70,
     LifetimeInSeconds=4320000,
     AssignmentDurationInSeconds=600,
     AutoApprovalDelayInSeconds=604800,
-    Question=question.get_as_xml(),
+    Question=question.get_as_xml()
 )
 
 print("HITID = " + new_hit['HIT']['HITId'])

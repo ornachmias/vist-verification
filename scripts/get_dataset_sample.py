@@ -36,4 +36,5 @@ print("Number of unique sequences: {}".format(seq_count))
 
 
 selected_ids = random.sample(all_story_ids, 50)
+print(selected_ids)
 print(", ".join(selected_ids))
