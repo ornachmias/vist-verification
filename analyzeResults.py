@@ -19,7 +19,7 @@ class AnalyzeResults(object):
         self._results_path = os.path.join(data_root, "results")
         self._result_file_ext = ".csv"
         self.images_range = ["0", "1", "2", "3", "4"]
-        self._cluster_score_threshold = 0.5
+        self._density_threshold = 2.0
 
     def get_results_ids(self):
         result_files = [f for f in os.listdir(self._results_path)
@@ -131,9 +131,20 @@ class AnalyzeResults(object):
 
         return new_df
 
-    def _cluster_score(self, x):
-        max_cluster = np.max(x)
-        return np.divide(x, max_cluster)
+    def _cluster_selection(self, x):
+        density = np.zeros_like(x, dtype=float)
+
+        sum_total = 0.
+        for i in range(len(x)):
+            sum_total += x[i]
+
+            if x[i] == 1:
+                density[i] = 0
+            else:
+                density[i] = (sum_total / (i + 1.))
+
+        print("{} ---> {}".format(x, density))
+        return density > self._density_threshold
 
     def _generate_hist(self, valid_df, result_id):
         pickle_path = os.path.join(self._get_graphs_dir_path(result_id, "hist"), "hist.pickle")
@@ -166,9 +177,9 @@ class AnalyzeResults(object):
             v = np.asarray(histogram_values[k]["values"])
             v_i = np.argsort(np.multiply(-1, v))
             v = v[v_i]
-            custer_scores = self._cluster_score(v)
+            selected_clusters = self._cluster_selection(v)
             clusters_colors = np.asarray(['b'] * len(v))
-            clusters_colors[custer_scores >= self._cluster_score_threshold] = 'r'
+            clusters_colors[selected_clusters] = 'r'
             dummy_extension = np.zeros(x_values_length - len(v))
             plt.bar(np.arange(x_values_length), np.append(v, dummy_extension), align='center', color=clusters_colors)
             plt.xticks(np.arange(x_values_length))
@@ -279,12 +290,6 @@ class AnalyzeResults(object):
         test_path, general_paths = self._generate_general_graph(valid_df, result_id)
 
         return test_path, general_paths, hists
-
-
-
-
-
-
 
 
 
