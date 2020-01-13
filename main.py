@@ -2,6 +2,7 @@ import json
 import os
 import random
 import uuid
+from pathlib import Path
 
 from flask import Flask, render_template, make_response, jsonify, request, send_from_directory
 from setuptools.command.test import test
@@ -21,6 +22,19 @@ data_loader = DataLoader(root_path=configurations.root_data)
 hit_counter = HitCounter(root_path=configurations.root_data, story_max_hits=configurations.max_story_submit)
 vist_dataset = VistDataset(root_path=configurations.root_data, hit_counter=hit_counter, samples_num=configurations.samples)
 analyze_results = AnalyzeResults(data_root=configurations.root_data, data_loader=data_loader, vist_dataset=vist_dataset)
+
+
+@app.route('/images/<image_id>', methods=['GET'])
+def serve_image(image_id):
+    print("Requested image file: {}".format(image_id))
+    image_path = data_loader._find_file(image_id)
+    if image_path is None:
+        return 'Image not found!'
+    
+    image_file_name = os.path.basename(image_path)
+    path = Path(image_path)
+    return send_from_directory(path.parent, image_file_name)
+
 
 @app.route('/.well-known/acme-challenge/<path:filename>', methods=['GET', 'POST'])
 def serve_static_files(filename):
@@ -242,7 +256,6 @@ def get_hist(question_id):
         render_template("display-histogram.html", fig_data=fig_data, sequences=sequences, question_id=question_id, story_text=t))
     resp.headers['ContentType'] = "text/html"
     return resp
-
 
 
 def generate_uui():

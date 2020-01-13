@@ -1,6 +1,4 @@
 import os
-import json
-import random
 
 from storyInSequence import StoryInSequence
 
@@ -59,6 +57,14 @@ class VistDataset(object):
             description += " " + s["original_text"]
 
         return description
+
+    def get_stories(self):
+        self._load_data()
+        return self._story_in_sequence.Stories
+
+    def get_albums(self):
+        self._load_data()
+        return self._story_in_sequence.Albums
 
     def _load_data(self):
         if not self._is_loaded:
