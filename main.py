@@ -37,7 +37,7 @@ def serve_image(image_id):
 
 @app.route('/api/stories/<story_id>', methods=['GET'])
 def get_image_ids(story_id):
-    return vist_dataset.get_images_ids(story_id)
+    return json.dumps(vist_dataset.get_images_ids(story_id))
 
 
 @app.route('/api/stories', methods=['POST'])
