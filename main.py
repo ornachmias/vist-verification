@@ -5,7 +5,6 @@ import uuid
 from pathlib import Path
 
 from flask import Flask, render_template, make_response, jsonify, request, send_from_directory
-from setuptools.command.test import test
 
 import configurations
 from analyzeResults import AnalyzeResults
@@ -24,7 +23,7 @@ vist_dataset = VistDataset(root_path=configurations.root_data, hit_counter=hit_c
 analyze_results = AnalyzeResults(data_root=configurations.root_data, data_loader=data_loader, vist_dataset=vist_dataset)
 
 
-@app.route('/images/<image_id>', methods=['GET'])
+@app.route('/api/images/<image_id>', methods=['GET'])
 def serve_image(image_id):
     print("Requested image file: {}".format(image_id))
     image_path = data_loader._find_file(image_id)
@@ -34,6 +33,17 @@ def serve_image(image_id):
     image_file_name = os.path.basename(image_path)
     path = Path(image_path)
     return send_from_directory(path.parent, image_file_name)
+
+
+@app.route('/api/stories/<story_id>', methods=['GET'])
+def get_image_ids(story_id):
+    return vist_dataset.get_images_ids(story_id)
+
+
+@app.route('/api/stories', methods=['POST'])
+def submit_story_result(story_id, img_ids, captions, features):
+    print("Called save result for story id: {} image ids: {} with captions: {}".format(story_id, img_ids, captions))
+    data_loader.save_story_result(story_id, img_ids, captions, features)
 
 
 @app.route('/.well-known/acme-challenge/<path:filename>', methods=['GET', 'POST'])
