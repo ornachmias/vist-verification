@@ -31,6 +31,9 @@ class DataLoader(object):
 
     def save_story_result(self, story_id, img_ids, captions, features):
         story_path = os.path.join(self._result_path, story_id)
+        if os.path.exists(story_path):
+            os.makedirs(story_path)
+
         img_ids_path = os.path.join(story_path, "img_ids")
         with open(img_ids_path, 'a+') as f:
             for i in img_ids:
