@@ -42,12 +42,14 @@ def get_image_ids(story_id):
 
 @app.route('/api/stories', methods=['POST'])
 def submit_story_result():
-    story_id = request.form.get('story_id')
-    img_ids = request.form.get('img_ids')
-    captions = request.form.get('captions')
-    features = request.form.get('features')
+    data = request.form.to_dict(flat=False)
+    story_id = data['story_id']
+    img_ids = data['img_ids']
+    captions = data['captions']
+    features = data['features']
     print("Called save result for story id: {} image ids: {} with captions: {}".format(story_id, img_ids, captions))
     data_loader.save_story_result(story_id, img_ids, captions, features)
+    return 'OK'
 
 
 @app.route('/.well-known/acme-challenge/<path:filename>', methods=['GET', 'POST'])
