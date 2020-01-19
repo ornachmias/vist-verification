@@ -41,7 +41,11 @@ def get_image_ids(story_id):
 
 
 @app.route('/api/stories', methods=['POST'])
-def submit_story_result(story_id, img_ids, captions, features):
+def submit_story_result():
+    story_id = request.form.get('story_id')
+    img_ids = request.form.get('img_ids')
+    captions = request.form.get('captions')
+    features = request.form.get('features')
     print("Called save result for story id: {} image ids: {} with captions: {}".format(story_id, img_ids, captions))
     data_loader.save_story_result(story_id, img_ids, captions, features)
 
