@@ -43,7 +43,7 @@ def get_image_ids(story_id):
 @app.route('/api/stories', methods=['POST'])
 def submit_story_result():
     data = request.form.to_dict(flat=False)
-    story_id = data['story_id']
+    story_id = data['story_id'][0]
     img_ids = data['img_ids']
     captions = data['captions']
     features = data['features']
