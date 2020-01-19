@@ -35,20 +35,20 @@ class DataLoader(object):
             os.makedirs(story_path)
 
         img_ids_path = os.path.join(story_path, "img_ids")
-        with open(img_ids_path, 'a+') as f:
+        with open(img_ids_path, 'w+') as f:
             for i in img_ids:
                 f.write(i + "\n")
 
             f.close()
 
         captions_path = os.path.join(story_path, "captions")
-        with open(captions_path, 'a+') as f:
+        with open(captions_path, 'w+') as f:
             for c in captions:
                 f.write(c + "\n")
 
             f.close()
 
-        pickle.dump(features, open(os.path.join(story_path, "features.pkl"), "wb"))
+        pickle.dump(features, open(os.path.join(story_path, "features.pkl"), "wb+"))
 
     def _find_file(self, image_id):
         images_extensions = ["jpg", "jpeg", "gif", "png"]
