@@ -47,7 +47,7 @@ def submit_story_result():
     img_ids = data['img_ids']
     captions = data['captions']
     features = data['features']
-    print("Called save result for story id: {} image ids: {} with captions: {}".format(story_id, img_ids, captions))
+    print("Called save result for story id: {} image ids: {} with captions: {} and feature:{}".format(story_id, img_ids, captions, features))
     data_loader.save_story_result(story_id, img_ids, captions, features)
     return 'OK'
 
