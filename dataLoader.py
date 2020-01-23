@@ -1,6 +1,7 @@
 import os
 import time
 import pickle
+import base64
 
 
 class DataLoader(object):
@@ -48,7 +49,9 @@ class DataLoader(object):
 
             f.close()
 
-        pickle.dump(features, open(os.path.join(story_path, "features.pkl"), "wb+"))
+        with open(os.path.join(story_path, "features.pkl"), "wb+") as f:
+            f.write(base64.b64decode(features))
+            f.close()
 
     def _find_file(self, image_id):
         images_extensions = ["jpg", "jpeg", "gif", "png"]
