@@ -49,9 +49,7 @@ class DataLoader(object):
 
             f.close()
 
-        with open(os.path.join(story_path, "features.pkl"), "wb+") as f:
-            f.write(base64.b64decode(features))
-            f.close()
+        pickle.dump(features, open(os.path.join(story_path, "features.pkl"), "wb+"))
 
     def _find_file(self, image_id):
         images_extensions = ["jpg", "jpeg", "gif", "png"]
